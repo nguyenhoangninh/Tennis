@@ -320,34 +320,55 @@ tr:hover td{background:#f8fafc;}
       <button class="btn btn-p btn-sm" onclick="openSummaryModal()">📄 Xem Tổng Hợp &amp; Tạo PDF</button>
     </div>
   </div>
+<div class="sec mt">💳 Quản Lý Mã QR Thanh Toán</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-bottom: 24px;">
 
-  <div class="sec">💳 Tài Khoản Của Tôi (Người Thu)</div>
-  <div class="card" style="border-left:4px solid var(--accent);">
-    <div class="frow">
-      <div class="fg"><label>Ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
-      <div class="fg"><label>Số tài khoản</label><input type="text" id="bank-acc" placeholder="6230686868"></div>
-      <div class="fg"><label>Tên tài khoản</label><input type="text" id="bank-name" placeholder="Nguyen Hoang Ninh"></div>
+    <!-- THẺ TÀI KHOẢN CỦA TÔI -->
+    <div class="card" style="margin-bottom:0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(16,185,129,0.08);">
+      <div style="background: #ecfdf5; padding: 16px 20px; border-bottom: 1px solid #a7f3d0; display: flex; justify-content: space-between; align-items: center;">
+        <strong style="color: var(--accent); font-size: 16px; font-family: 'Nunito', sans-serif;">🙋‍♂️ Của Tôi (Người Thu)</strong>
+      </div>
+      <div style="padding: 24px 20px; display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <div id="my-qr-wrap" style="width: 100%; display: flex; justify-content: center; min-height: 280px; align-items: center;">
+           <!-- Mã QR sẽ xuất hiện bự ở đây -->
+        </div>
+      </div>
+      <div style="background: var(--surface2); padding: 16px 20px; border-top: 1px solid var(--border);">
+        <div class="frow" style="gap:8px; margin-bottom:8px;">
+          <div class="fg"><input type="text" id="bank-bank" placeholder="NH (VD: TCB)" style="padding:8px 12px; font-size:13px;"></div>
+          <div class="fg w"><input type="text" id="bank-acc" placeholder="Số tài khoản" style="padding:8px 12px; font-family: 'DM Mono', monospace;"></div>
+        </div>
+        <div class="frow" style="gap:8px; margin-bottom:0;">
+          <div class="fg w"><input type="text" id="bank-name" placeholder="Tên chủ tài khoản" style="padding:8px 12px; font-size:13px;"></div>
+          <button class="btn btn-p" onclick="saveBankInfo()" style="padding:8px 16px;">Lưu & Tạo QR</button>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:12px">
-      <button class="btn btn-p btn-sm" onclick="saveBankInfo()">💾 Lưu &amp; Tạo QR</button>
-    </div>
-    <div id="bank-disp" style="margin-top:16px"></div>
-    <div id="my-qr-wrap" style="margin-top:12px"></div>
-  </div>
 
-  <div class="sec">🏟 Tài Khoản Chủ Sân</div>
-  <div class="card" style="border-left:4px solid var(--accent2);">
-    <div class="frow">
-      <div class="fg"><label>Ngân hàng</label><input type="text" id="court-bank" placeholder="MB Bank"></div>
-      <div class="fg"><label>Số tài khoản</label><input type="text" id="court-acc" placeholder="0326710264"></div>
-      <div class="fg"><label>Tên tài khoản</label><input type="text" id="court-name" placeholder="Thach Tha"></div>
+    <!-- THẺ TÀI KHOẢN CHỦ SÂN -->
+    <div class="card" style="margin-bottom:0; display: flex; flex-direction: column; padding: 0; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(59,130,246,0.08);">
+      <div style="background: #eff6ff; padding: 16px 20px; border-bottom: 1px solid #bfdbfe; display: flex; justify-content: space-between; align-items: center;">
+        <strong style="color: var(--accent2); font-size: 16px; font-family: 'Nunito', sans-serif;">🏟 Tài Khoản Chủ Sân</strong>
+      </div>
+      <div style="padding: 24px 20px; display: flex; flex-direction: column; align-items: center; flex: 1;">
+        <div id="court-qr-wrap" style="width: 100%; display: flex; justify-content: center; min-height: 280px; align-items: center;">
+           <!-- Mã QR sẽ xuất hiện bự ở đây -->
+        </div>
+      </div>
+      <div style="background: var(--surface2); padding: 16px 20px; border-top: 1px solid var(--border);">
+        <div class="frow" style="gap:8px; margin-bottom:8px;">
+          <div class="fg"><input type="text" id="court-bank" placeholder="NH (VD: MB)" style="padding:8px 12px; font-size:13px;"></div>
+          <div class="fg w"><input type="text" id="court-acc" placeholder="Số tài khoản" style="padding:8px 12px; font-family: 'DM Mono', monospace;"></div>
+        </div>
+        <div class="frow" style="gap:8px; margin-bottom:0;">
+          <div class="fg w"><input type="text" id="court-name" placeholder="Tên chủ sân" style="padding:8px 12px; font-size:13px;"></div>
+          <button class="btn" onclick="saveCourtInfo()" style="padding:8px 16px; background:#ffffff; color:var(--accent2); border:2px solid var(--accent2); font-weight:800; transition:.2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#ffffff'">Lưu & Tạo QR</button>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:12px">
-      <button class="btn btn-outline-blue btn-sm" onclick="saveCourtInfo()">💾 Lưu &amp; Tạo QR Chủ Sân</button>
-    </div>
-    <div id="court-disp" style="margin-top:16px"></div>
-    <div id="court-qr-wrap" style="margin-top:12px"></div>
+
   </div>
+ 
 
   <div class="sec">🧾 Chứng Từ Thanh Toán</div>
   <div class="card">
