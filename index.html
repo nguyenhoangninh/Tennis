@@ -56,7 +56,7 @@ header{background:var(--surface);box-shadow:0 2px 12px rgba(0,0,0,0.04);padding:
 .fg.n{flex:0 0 140px;min-width:120px;}
 .fg.w{flex:2;}
 label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-family:'Nunito',sans-serif;}
-input,select{background:var(--surface2);border:2px solid var(--border);color:var(--text);padding:8px 12px;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;outline:none;transition:.2s;width:100%;}
+input,select{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;outline:none;transition:.2s;width:100%;}
 input:focus,select:focus{border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 4px rgba(16,185,129,0.15);}
 input[type=number]{font-family:'DM Mono',monospace;}
 
@@ -65,11 +65,16 @@ input[type=number]{font-family:'DM Mono',monospace;}
 .chip input{width:auto;padding:0;}
 .chip:has(input:checked){background:#ecfdf5;border-color:var(--accent);color:var(--accent);}
 
-.btn{padding:8px 18px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.3px;cursor:pointer;border:none;transition:all .2s cubic-bezier(0.4, 0, 0.2, 1);white-space:nowrap;}
+.btn{padding:8px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.3px;cursor:pointer;border:none;transition:all .2s cubic-bezier(0.4, 0, 0.2, 1);white-space:nowrap;}
 .btn-p{background:var(--accent);color:#ffffff;box-shadow:0 4px 12px rgba(16,185,129,0.25);}
 .btn-p:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,185,129,0.35);}
-.btn-s{background:#ffffff;color:var(--text);border:2px solid var(--border);}
+.btn-s{background:#ffffff;color:var(--text);border:1.5px solid var(--border);}
 .btn-s:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-1px);}
+
+/* Thêm nút Viền Xanh cho Chủ Sân */
+.btn-outline-blue{background:#ffffff;color:var(--accent2);border:1.5px solid var(--accent2);}
+.btn-outline-blue:hover{background:#eff6ff;transform:translateY(-1px);}
+
 .btn-d{background:#fff1f2;color:var(--danger);border:1px solid #fecdd3;font-size:12px;padding:5px 12px;}
 .btn-d:hover{background:var(--danger);color:#fff;}
 .btn-w{background:#f0fdf4;color:var(--accent);border:1px solid #a7f3d0;font-size:12px;padding:5px 12px;}
@@ -92,7 +97,7 @@ tr:hover td{background:#f8fafc;}
 
 /* ── SUMMARY CARDS ── */
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
-.scard{background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);border:2px solid var(--border);border-radius:16px;padding:16px 20px;box-shadow:0 4px 12px rgba(0,0,0,0.02);}
+.scard{background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);border:1.5px solid var(--border);border-radius:16px;padding:16px 20px;box-shadow:0 4px 12px rgba(0,0,0,0.02);}
 .slbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-family:'Nunito',sans-serif;font-weight:800;}
 .sval{font-family:'Nunito',sans-serif;font-size:26px;color:var(--accent);font-weight:900;}
 .ssub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;}
@@ -143,15 +148,23 @@ tr:hover td{background:#f8fafc;}
   .fg.n{flex:0 0 120px;min-width:110px;}
 }
 
-/* ── QR & RECEIPTS ── */
-.qr-card{display:inline-flex;flex-direction:column;align-items:center;gap:8px;padding:16px 20px;background:var(--surface2);border:2px solid var(--border);border-radius:16px;text-align:center;}
-.qr-card img{border-radius:10px;border:2px solid var(--border);}
-.qr-label{font-weight:800;font-size:13px;color:var(--accent);font-family:Nunito,sans-serif;}
-.qr-sub{font-size:11px;color:var(--muted);font-weight:600;}
+/* ── QR & RECEIPTS TÂN TRANG ĐẸP MẮT ── */
+.qr-card{display:inline-flex;flex-direction:column;align-items:center;padding:18px 24px;background:#ffffff;border:1px solid var(--border);border-radius:12px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.03);}
+.qr-card img{border-radius:8px;border:1px solid #f1f5f9;padding:4px;background:#fff;}
+.qr-label{font-weight:800;font-size:13px;font-family:'Nunito',sans-serif;margin-top:12px;}
+.qr-sub-acc{font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;color:var(--text);margin-top:4px;}
+.qr-sub-desc{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px;}
+
+.info-banner{display:flex;align-items:center;gap:8px;border-radius:8px;padding:12px 16px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;}
+.info-banner.green{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;}
+.info-banner.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;}
+.info-banner .divider{opacity:0.4;margin:0 4px;}
+
 .receipt-thumb{position:relative;display:inline-block;}
-.receipt-thumb img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:.2s;}
-.receipt-thumb img:hover{transform:scale(1.05);border-color:var(--accent);}
-.receipt-del{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.receipt-thumb img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:.2s;}
+.receipt-thumb img:hover{transform:scale(1.05);border-color:var(--accent);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.receipt-del{position:absolute;top:-8px;right:-8px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(244,63,94,0.3);transition:.2s;}
+.receipt-del:hover{transform:scale(1.1);}
 
 /* ── PDF SUMMARY ── */
 #pdf-content{background:#fff;border-radius:12px;padding:0;}
@@ -291,6 +304,9 @@ tr:hover td{background:#f8fafc;}
   <div id="per-session-detail"></div>
 </div>
 
+<!-- ============================================== -->
+<!-- ════════ TAB: THANH TOÁN (TÂN TRANG) ═════════ -->
+<!-- ============================================== -->
 <div id="tab-payments" class="panel">
 
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
@@ -312,7 +328,7 @@ tr:hover td{background:#f8fafc;}
       <div class="fg"><label>Số tài khoản</label><input type="text" id="bank-acc" placeholder="6230686868"></div>
       <div class="fg"><label>Tên tài khoản</label><input type="text" id="bank-name" placeholder="Nguyen Hoang Ninh"></div>
     </div>
-    <div style="margin-top:8px">
+    <div style="margin-top:12px">
       <button class="btn btn-p btn-sm" onclick="saveBankInfo()">💾 Lưu &amp; Tạo QR</button>
     </div>
     <div id="bank-disp" style="margin-top:16px"></div>
@@ -322,12 +338,12 @@ tr:hover td{background:#f8fafc;}
   <div class="sec">🏟 Tài Khoản Chủ Sân</div>
   <div class="card" style="border-left:4px solid var(--accent2);">
     <div class="frow">
-      <div class="fg"><label>Ngân hàng</label><input type="text" id="court-bank" placeholder="Vietcombank"></div>
-      <div class="fg"><label>Số tài khoản</label><input type="text" id="court-acc" placeholder="1234567890"></div>
-      <div class="fg"><label>Tên tài khoản</label><input type="text" id="court-name" placeholder="Tên chủ sân"></div>
+      <div class="fg"><label>Ngân hàng</label><input type="text" id="court-bank" placeholder="MB Bank"></div>
+      <div class="fg"><label>Số tài khoản</label><input type="text" id="court-acc" placeholder="0326710264"></div>
+      <div class="fg"><label>Tên tài khoản</label><input type="text" id="court-name" placeholder="Thach Tha"></div>
     </div>
-    <div style="margin-top:8px">
-      <button class="btn btn-s btn-sm" onclick="saveCourtInfo()" style="border-color:var(--accent2);color:var(--accent2);">💾 Lưu &amp; Tạo QR Chủ Sân</button>
+    <div style="margin-top:12px">
+      <button class="btn btn-outline-blue btn-sm" onclick="saveCourtInfo()">💾 Lưu &amp; Tạo QR Chủ Sân</button>
     </div>
     <div id="court-disp" style="margin-top:16px"></div>
     <div id="court-qr-wrap" style="margin-top:12px"></div>
@@ -339,17 +355,18 @@ tr:hover td{background:#f8fafc;}
       Upload ảnh biên lai: thanh toán tiền sân, tiền banh, hoặc chuyển khoản từ thành viên...
     </p>
     <div onclick="document.getElementById('receipt-input').click()"
-      style="border:2.5px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface2);"
+      style="border:1.5px dashed #cbd5e1;border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:#f8fafc;margin-bottom:16px;"
       onmouseover="this.style.borderColor='var(--accent)';this.style.background='#ecfdf5'"
-      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+      onmouseout="this.style.borderColor='#cbd5e1';this.style.background='#f8fafc'">
       <input type="file" id="receipt-input" accept="image/*" multiple onchange="handleReceiptUpload(event)" style="display:none">
-      <div style="font-size:32px;margin-bottom:8px">📸</div>
-      <div style="font-weight:800;color:var(--accent);font-family:Nunito,sans-serif">Nhấn để chọn ảnh</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;font-weight:600">JPG, PNG — lưu cục bộ trên trình duyệt</div>
+      <div style="font-size:28px;margin-bottom:8px">📸</div>
+      <div style="font-weight:800;color:var(--accent);font-family:'Nunito',sans-serif;font-size:14px;">Nhấn để chọn ảnh</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;font-weight:600">JPG, PNG — lưu cục bộ trên trình duyệt</div>
     </div>
-    <div id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"></div>
+    <div id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
   </div>
 </div>
+<!-- ============================================== -->
 
 <!-- SUMMARY MODAL -->
 <div id="summary-modal" class="moverlay" style="display:none" onclick="closeSummaryModal(event)">
@@ -829,7 +846,6 @@ function addSession() {
     const courtFee   = tmpl.court || 0;
     const coachFee   = hasCoach ? (tmpl.coach || 0) : 0;
     
-    // FIX: Tiền Tip áp dụng bắt buộc dù có thầy hay không thầy (do người nhặt cầu)
     const tip        = tmpl.tip || 0; 
     
     const parkTotal  = parkCount * PARKING_FEE;
@@ -867,7 +883,6 @@ function addSession() {
     renderSessionsTable();
     renderSplit();
     
-    // Bật thông báo thêm thành công để User dễ nhận diện
     alert("✅ Đã thêm buổi tập thành công!");
 
   } catch(e) {
@@ -918,7 +933,7 @@ function openEdit(id) {
   if (!s) return;
   document.getElementById('edit-id').value       = id;
   document.getElementById('edit-date').value     = s.date;
-  document.getElementById('edit-time').value     = s.time; // Sẽ sửa được
+  document.getElementById('edit-time').value     = s.time; 
   document.getElementById('edit-coach').value    = s.hasCoach ? 'yes' : 'no';
   document.getElementById('edit-court').value    = s.courtFee;
   document.getElementById('edit-coachfee').value = s.coachFee || 0;
@@ -1148,7 +1163,7 @@ function renderSplit() {
 }
 
 // ═══════════════════════════════════════════════════
-// PAYMENTS
+// PAYMENTS & QR RE-DESIGN
 // ═══════════════════════════════════════════════════
 function renderPayments() {
   if (!document.getElementById('tab-payments').classList.contains('active')) return;
@@ -1178,14 +1193,16 @@ function renderPayments() {
   renderCourtDisp();
   renderReceiptThumbs();
 }
+
 function togPay(name) { 
- const monthData = cd();
-  if (!monthData.payments) monthData.payments = {}; // Chốt chặn an toàn thứ 2
+  const monthData = cd();
+  if (!monthData.payments) monthData.payments = {};
   monthData.payments[name] = !monthData.payments[name]; 
   save(); 
   renderPayments(); 
   renderSplit(); 
 }
+
 function saveBankInfo() {
   if (!state.bankInfo) state.bankInfo = {};
   state.bankInfo = {
@@ -1195,6 +1212,7 @@ function saveBankInfo() {
   };
   save(); renderBankDisp();
 }
+
 function saveCourtInfo() {
   if (!state.courtInfo) state.courtInfo = {};
   state.courtInfo = {
@@ -1204,6 +1222,7 @@ function saveCourtInfo() {
   };
   save(); renderCourtDisp();
 }
+
 function bankCodeMap(name) {
   const n = (name||'').toLowerCase();
   if (n.includes('techcom')||n.includes('tcb')) return 'TCB';
@@ -1219,52 +1238,54 @@ function bankCodeMap(name) {
   if (n.includes('momo')) return 'MOMO';
   return 'TCB';
 }
+
 function makeVietQR(info, memo) {
-  if (!info?.acc) return null;
+  if (!info || !info.acc) return null;
   const bank = bankCodeMap(info.bank);
-  return `https://img.vietqr.io/image/${bank}-${info.acc}-compact2.png?addInfo=${encodeURIComponent(memo||'Tennis')}&accountName=${encodeURIComponent(info.name||'')}`;
+  return 'https://img.vietqr.io/image/' + bank + '-' + info.acc + '-compact2.png?addInfo=' + encodeURIComponent(memo||'Tennis') + '&accountName=' + encodeURIComponent(info.name||'');
 }
+
 function renderQRBox(wrapperId, info, label, color) {
   const wrap = document.getElementById(wrapperId);
   if (!wrap || !info?.acc) { if(wrap) wrap.innerHTML=''; return; }
   const qrSrc = makeVietQR(info, label);
-  wrap.innerHTML = `<div class="qr-card" style="border-color:${color}30;">
-    <img src="${qrSrc}" width="180" height="180"
-      onerror="this.outerHTML='<div style=\'width:180px;height:180px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:600;\'>QR không tải được</div>'"
+  wrap.innerHTML = `<div class="qr-card" style="border-color:${color}30; width: fit-content; margin-top: 12px;">
+    <img src="${qrSrc}" width="160" height="160"
+      onerror="this.outerHTML='<div style=\'width:160px;height:160px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:600;\'>QR không tải được</div>'"
     >
-    <div class="qr-label" style="color:${color}">${label}</div>
-    <div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">${info.acc}</div>
-    <div class="qr-sub">${info.bank} · ${info.name}</div>
+    <div class="qr-label" style="color:${color}; margin-top:8px;">${label}</div>
+    <div class="qr-sub-acc" style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin-top:2px;">${info.acc}</div>
+    <div class="qr-sub-desc" style="font-size:11px;color:var(--muted);margin-top:2px;">${info.bank} · ${info.name}</div>
   </div>`;
 }
+
 function renderBankDisp() {
   const info = state.bankInfo || cd().bankInfo;
   const el   = document.getElementById('bank-disp');
   if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div style="background:#ecfdf5;border:2px solid #a7f3d0;border-radius:12px;padding:14px;font-size:14px;color:#065f46;">
-      💳 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
-      <strong style="font-family:'DM Mono',monospace;font-size:16px">${info.acc}</strong> &nbsp;|&nbsp;
-      <strong style="font-weight:800">${info.name}</strong></div>`;
+    el.innerHTML = `<div class="info-banner green">
+      💳 ${info.bank} <span class="divider">|</span> <strong style="font-family:'DM Mono',monospace;font-size:15px">${info.acc}</strong> <span class="divider">|</span> ${info.name}
+    </div>`;
     document.getElementById('bank-acc').value  = info.acc;
     document.getElementById('bank-name').value = info.name;
     document.getElementById('bank-bank').value = info.bank;
-    renderQRBox('my-qr-wrap', info, 'Chuyển khoản tennis', '#10b981');
+    renderQRBox('my-qr-wrap', info, 'Chuyển khoản tennis', 'var(--accent)');
   } else el.innerHTML = '';
 }
+
 function renderCourtDisp() {
   const info = state.courtInfo;
   const el   = document.getElementById('court-disp');
   if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px;font-size:14px;color:#1e3a8a;">
-      🏟 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
-      <strong style="font-family:'DM Mono',monospace;font-size:16px">${info.acc}</strong> &nbsp;|&nbsp;
-      <strong style="font-weight:800">${info.name}</strong></div>`;
+    el.innerHTML = `<div class="info-banner blue">
+      🏟 ${info.bank} <span class="divider">|</span> <strong style="font-family:'DM Mono',monospace;font-size:15px">${info.acc}</strong> <span class="divider">|</span> ${info.name}
+    </div>`;
     document.getElementById('court-acc').value  = info.acc;
     document.getElementById('court-name').value = info.name;
     document.getElementById('court-bank').value = info.bank;
-    renderQRBox('court-qr-wrap', info, 'Thanh toán tiền sân', '#3b82f6');
+    renderQRBox('court-qr-wrap', info, 'Thanh toán tiền sân', 'var(--accent2)');
   } else { el.innerHTML = ''; }
 }
 
@@ -1440,11 +1461,7 @@ function closeSummaryModal(e) {
   if (!e || e.target === document.getElementById('summary-modal'))
     document.getElementById('summary-modal').style.display = 'none';
 }
-function makeVietQR(info, memo) {
-  if (!info || !info.acc) return null;
-  const bank = bankCodeMap(info.bank);
-  return 'https://img.vietqr.io/image/' + bank + '-' + info.acc + '-compact2.png?addInfo=' + encodeURIComponent(memo||'Tennis') + '&accountName=' + encodeURIComponent(info.name||'');
-}
+
 function buildSummaryContent() {
   const totals     = calcSplit();
   const active     = Object.entries(totals).filter(function(e){return e[1].sessions>0||e[1].ball>0;}).sort(function(a,b){return b[1].total-a[1].total;});
@@ -1500,8 +1517,8 @@ function buildSummaryContent() {
   var qrHtml = (myQR || cQR) ? (
     '<div class="pdf-sec-title">📲 Quét mã chuyển khoản</div>' +
     '<div class="qr-grid">' +
-    (myQR ? '<div class="qr-card" style="border-color:#a7f3d0"><img src="' + myQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #a7f3d0"><div class="qr-label">Chuyển cho: ' + (myInfo.name||'') + '</div><div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + myInfo.acc + '</div><div class="qr-sub">' + myInfo.bank + '</div></div>' : '') +
-    (cQR ? '<div class="qr-card" style="border-color:#bfdbfe"><img src="' + cQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #bfdbfe"><div class="qr-label" style="color:#3b82f6">Thanh toán tiền sân</div><div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + courtInfo.acc + '</div><div class="qr-sub">' + courtInfo.bank + ' · ' + (courtInfo.name||'') + '</div></div>' : '') +
+    (myQR ? '<div class="qr-card" style="border-color:#a7f3d0"><img src="' + myQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #a7f3d0"><div class="qr-label">Chuyển cho: ' + (myInfo.name||'') + '</div><div class="qr-sub-acc" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + myInfo.acc + '</div><div class="qr-sub-desc">' + myInfo.bank + '</div></div>' : '') +
+    (cQR ? '<div class="qr-card" style="border-color:#bfdbfe"><img src="' + cQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #bfdbfe"><div class="qr-label" style="color:#3b82f6">Thanh toán tiền sân</div><div class="qr-sub-acc" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + courtInfo.acc + '</div><div class="qr-sub-desc">' + courtInfo.bank + ' · ' + (courtInfo.name||'') + '</div></div>' : '') +
     '<div style="flex:1;min-width:200px;background:#f0fdf4;border:2px solid #a7f3d0;border-radius:12px;padding:14px;align-self:flex-start">' +
     '<div style="font-weight:800;color:var(--accent);margin-bottom:10px;font-family:Nunito,sans-serif">📋 Số tiền cần chuyển</div>' +
     amounts + '</div></div>'
@@ -1522,8 +1539,6 @@ function buildSummaryContent() {
     (sesRows || '<p style="color:var(--muted);padding:10px;font-size:13px">Chưa có buổi nào</p>') +
     '<div style="text-align:center;margin-top:18px;padding-top:14px;border-top:2px dashed var(--border);color:var(--muted);font-size:11px;font-weight:600">Tạo bởi 🎾 Tennis Manager · ' + new Date().toLocaleDateString('vi-VN') + '</div>';
 }
-
-
 
 init();
 </script>
