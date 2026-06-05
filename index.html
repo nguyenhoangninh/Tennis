@@ -142,6 +142,35 @@ tr:hover td{background:#f8fafc;}
   .cpill{display:none;}
   .fg.n{flex:0 0 120px;min-width:110px;}
 }
+
+/* ── QR & RECEIPTS ── */
+.qr-card{display:inline-flex;flex-direction:column;align-items:center;gap:8px;padding:16px 20px;background:var(--surface2);border:2px solid var(--border);border-radius:16px;text-align:center;}
+.qr-card img{border-radius:10px;border:2px solid var(--border);}
+.qr-label{font-weight:800;font-size:13px;color:var(--accent);font-family:Nunito,sans-serif;}
+.qr-sub{font-size:11px;color:var(--muted);font-weight:600;}
+.receipt-thumb{position:relative;display:inline-block;}
+.receipt-thumb img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:.2s;}
+.receipt-thumb img:hover{transform:scale(1.05);border-color:var(--accent);}
+.receipt-del{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;font-weight:900;display:flex;align-items:center;justify-content:center;}
+
+/* ── PDF SUMMARY ── */
+#pdf-content{background:#fff;border-radius:12px;padding:0;}
+.pdf-hdr{text-align:center;padding:20px;background:linear-gradient(135deg,#ecfdf5,#eff6ff);border-radius:12px;margin-bottom:16px;}
+.pdf-hdr h1{font-size:22px;font-weight:900;color:var(--accent);font-family:Nunito,sans-serif;}
+.pdf-hdr p{color:var(--muted);font-size:13px;margin-top:4px;font-weight:600;}
+.pdf-sec-title{font-size:14px;font-weight:800;color:var(--text);padding:8px 14px;background:var(--surface2);border-radius:8px;margin:14px 0 10px;font-family:Nunito,sans-serif;}
+.pdf-person-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px;border:2px solid var(--border);background:#fff;margin-bottom:8px;}
+.pdf-amount{font-family:DM Mono,monospace;font-size:18px;font-weight:800;color:var(--accent);}
+.pdf-total-row{background:#ecfdf5;border-color:var(--accent);border-width:2px;}
+.qr-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:12px 0;}
+
+@media print{
+  body > *:not(#summary-modal){display:none!important;}
+  #summary-modal{position:fixed!important;inset:0!important;display:flex!important;background:#fff!important;padding:0!important;}
+  .moverlay{background:#fff!important;backdrop-filter:none!important;}
+  .modal{max-width:100%!important;width:100%!important;border:none!important;box-shadow:none!important;border-radius:0!important;}
+  .mtitle,.modal > div:first-child > *:not(#pdf-content){display:none!important;}
+}
 </style>
 </head>
 <body>
@@ -263,25 +292,80 @@ tr:hover td{background:#f8fafc;}
 </div>
 
 <div id="tab-payments" class="panel">
+
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
   <div class="card">
     <div style="font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:600">
-      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:800"></span> — Tick ✓ sau khi nhận tiền
+      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:800"></span>
+      &nbsp;—&nbsp; Tick ✓ sau khi nhận tiền
     </div>
     <div id="pay-list"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn btn-p btn-sm" onclick="openSummaryModal()">📄 Xem Tổng Hợp &amp; Tạo PDF</button>
+    </div>
   </div>
-  <div class="sec">🏦 Thông Tin Chuyển Khoản</div>
-  <div class="card">
+
+  <div class="sec">💳 Tài Khoản Của Tôi (Người Thu)</div>
+  <div class="card" style="border-left:4px solid var(--accent);">
     <div class="frow">
+      <div class="fg"><label>Ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
       <div class="fg"><label>Số tài khoản</label><input type="text" id="bank-acc" placeholder="6230686868"></div>
       <div class="fg"><label>Tên tài khoản</label><input type="text" id="bank-name" placeholder="Nguyen Hoang Ninh"></div>
-      <div class="fg"><label>Ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
     </div>
-    <div style="margin-top:16px">
-      <button class="btn btn-p btn-sm" onclick="saveBankInfo()">Lưu Thông Tin</button>
+    <div style="margin-top:8px">
+      <button class="btn btn-p btn-sm" onclick="saveBankInfo()">💾 Lưu &amp; Tạo QR</button>
     </div>
     <div id="bank-disp" style="margin-top:16px"></div>
+    <div id="my-qr-wrap" style="margin-top:12px"></div>
   </div>
+
+  <div class="sec">🏟 Tài Khoản Chủ Sân</div>
+  <div class="card" style="border-left:4px solid var(--accent2);">
+    <div class="frow">
+      <div class="fg"><label>Ngân hàng</label><input type="text" id="court-bank" placeholder="Vietcombank"></div>
+      <div class="fg"><label>Số tài khoản</label><input type="text" id="court-acc" placeholder="1234567890"></div>
+      <div class="fg"><label>Tên tài khoản</label><input type="text" id="court-name" placeholder="Tên chủ sân"></div>
+    </div>
+    <div style="margin-top:8px">
+      <button class="btn btn-s btn-sm" onclick="saveCourtInfo()" style="border-color:var(--accent2);color:var(--accent2);">💾 Lưu &amp; Tạo QR Chủ Sân</button>
+    </div>
+    <div id="court-disp" style="margin-top:16px"></div>
+    <div id="court-qr-wrap" style="margin-top:12px"></div>
+  </div>
+
+  <div class="sec">🧾 Chứng Từ Thanh Toán</div>
+  <div class="card">
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px;font-weight:600">
+      Upload ảnh biên lai: thanh toán tiền sân, tiền banh, hoặc chuyển khoản từ thành viên...
+    </p>
+    <div onclick="document.getElementById('receipt-input').click()"
+      style="border:2.5px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface2);"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.background='#ecfdf5'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'">
+      <input type="file" id="receipt-input" accept="image/*" multiple onchange="handleReceiptUpload(event)" style="display:none">
+      <div style="font-size:32px;margin-bottom:8px">📸</div>
+      <div style="font-weight:800;color:var(--accent);font-family:Nunito,sans-serif">Nhấn để chọn ảnh</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;font-weight:600">JPG, PNG — lưu cục bộ trên trình duyệt</div>
+    </div>
+    <div id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div id="summary-modal" class="moverlay" style="display:none" onclick="closeSummaryModal(event)">
+  <div class="modal" style="max-width:800px;padding:28px" onclick="event.stopPropagation()">
+    <div class="mtitle">📄 Bảng Tổng Hợp Tháng</div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-p btn-sm" onclick="window.print()">🖨️ In / Lưu PDF</button>
+      <button class="btn btn-s btn-sm" onclick="closeSummaryModal()">✕ Đóng</button>
+    </div>
+    <div id="pdf-content"></div>
+  </div>
+</div>
+
+<!-- IMAGE PREVIEW MODAL -->
+<div id="img-modal" class="moverlay" style="display:none" onclick="this.style.display='none'">
+  <img id="img-modal-src" style="max-width:92vw;max-height:92vh;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.3)">
 </div>
 
 <div id="tab-history" class="panel">
@@ -394,8 +478,18 @@ const FB_PATH     = 'tennis_data';
 let state = {
   members:    ['Thúy','Ví','Ninh','Khánh','Phương'],
   months:     {},
-  masterData: []
+  masterData: [],
+  bankInfo:   {},
+  courtInfo:  {}
 };
+// Receipts stored locally only (base64 too large for Firebase)
+let receipts = [];
+function saveReceipts() {
+  try { localStorage.setItem('tennis_receipts_v1', JSON.stringify(receipts)); } catch(e) {}
+}
+function loadReceipts() {
+  try { receipts = JSON.parse(localStorage.getItem('tennis_receipts_v1')||'[]'); } catch(e) { receipts=[]; }
+}
 const DEFAULT_MASTER = [
   { id:1, name:'Sáng thường (05h-08h)',   court:120000, coach:200000, tip:50000 },
   { id:2, name:'Ngày thường (08h-17h)',   court:100000, coach:200000, tip:50000 },
@@ -422,6 +516,8 @@ function sanitizeFirebaseState(cloudData) {
       if (m.ballPlayers) m.ballPlayers = Object.values(m.ballPlayers).filter(Boolean);
     });
   }
+  if (!cloudData.bankInfo)  cloudData.bankInfo  = {};
+  if (!cloudData.courtInfo) cloudData.courtInfo = {};
   return cloudData;
 }
 
@@ -487,7 +583,9 @@ function init() {
   const saved = localStorage.getItem(DB_KEY);
   if (saved) try { state = JSON.parse(saved); } catch(e){}
   if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
-
+  if (!state.bankInfo)  state.bankInfo  = {};
+  if (!state.courtInfo) state.courtInfo = {};
+  loadReceipts();
   const now = new Date();
   curMonth    = ym(now.getFullYear(), now.getMonth()+1);
   dpViewMonth = curMonth;
@@ -1077,6 +1175,8 @@ function renderPayments() {
       </div>
     </div>`).join('');
   renderBankDisp();
+  renderCourtDisp();
+  renderReceiptThumbs();
 }
 function togPay(name) { 
  const monthData = cd();
@@ -1087,26 +1187,85 @@ function togPay(name) {
   renderSplit(); 
 }
 function saveBankInfo() {
-  cd().bankInfo = {
+  if (!state.bankInfo) state.bankInfo = {};
+  state.bankInfo = {
     acc:  document.getElementById('bank-acc').value.trim(),
     name: document.getElementById('bank-name').value.trim(),
     bank: document.getElementById('bank-bank').value.trim()
   };
   save(); renderBankDisp();
 }
+function saveCourtInfo() {
+  if (!state.courtInfo) state.courtInfo = {};
+  state.courtInfo = {
+    acc:  document.getElementById('court-acc').value.trim(),
+    name: document.getElementById('court-name').value.trim(),
+    bank: document.getElementById('court-bank').value.trim()
+  };
+  save(); renderCourtDisp();
+}
+function bankCodeMap(name) {
+  const n = (name||'').toLowerCase();
+  if (n.includes('techcom')||n.includes('tcb')) return 'TCB';
+  if (n.includes('vietcom')||n.includes('vcb')) return 'VCB';
+  if (n.includes('mb')||n.includes('quân đội')) return 'MB';
+  if (n.includes('acb')) return 'ACB';
+  if (n.includes('tpbank')) return 'TPB';
+  if (n.includes('vpbank')) return 'VPB';
+  if (n.includes('vietinbank')) return 'ICB';
+  if (n.includes('agribank')) return 'AGR';
+  if (n.includes('bidv')) return 'BIDV';
+  if (n.includes('sacombank')) return 'STB';
+  if (n.includes('momo')) return 'MOMO';
+  return 'TCB';
+}
+function makeVietQR(info, memo) {
+  if (!info?.acc) return null;
+  const bank = bankCodeMap(info.bank);
+  return `https://img.vietqr.io/image/${bank}-${info.acc}-compact2.png?addInfo=${encodeURIComponent(memo||'Tennis')}&accountName=${encodeURIComponent(info.name||'')}`;
+}
+function renderQRBox(wrapperId, info, label, color) {
+  const wrap = document.getElementById(wrapperId);
+  if (!wrap || !info?.acc) { if(wrap) wrap.innerHTML=''; return; }
+  const qrSrc = makeVietQR(info, label);
+  wrap.innerHTML = `<div class="qr-card" style="border-color:${color}30;">
+    <img src="${qrSrc}" width="180" height="180"
+      onerror="this.outerHTML='<div style=\'width:180px;height:180px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:600;\'>QR không tải được</div>'"
+    >
+    <div class="qr-label" style="color:${color}">${label}</div>
+    <div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">${info.acc}</div>
+    <div class="qr-sub">${info.bank} · ${info.name}</div>
+  </div>`;
+}
 function renderBankDisp() {
-  const info = cd().bankInfo;
+  const info = state.bankInfo || cd().bankInfo;
   const el   = document.getElementById('bank-disp');
   if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px;font-size:14px;color:#1e3a8a;">
-      🏦 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
+    el.innerHTML = `<div style="background:#ecfdf5;border:2px solid #a7f3d0;border-radius:12px;padding:14px;font-size:14px;color:#065f46;">
+      💳 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
       <strong style="font-family:'DM Mono',monospace;font-size:16px">${info.acc}</strong> &nbsp;|&nbsp;
       <strong style="font-weight:800">${info.name}</strong></div>`;
     document.getElementById('bank-acc').value  = info.acc;
     document.getElementById('bank-name').value = info.name;
     document.getElementById('bank-bank').value = info.bank;
+    renderQRBox('my-qr-wrap', info, 'Chuyển khoản tennis', '#10b981');
   } else el.innerHTML = '';
+}
+function renderCourtDisp() {
+  const info = state.courtInfo;
+  const el   = document.getElementById('court-disp');
+  if (!el) return;
+  if (info?.acc) {
+    el.innerHTML = `<div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px;font-size:14px;color:#1e3a8a;">
+      🏟 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
+      <strong style="font-family:'DM Mono',monospace;font-size:16px">${info.acc}</strong> &nbsp;|&nbsp;
+      <strong style="font-weight:800">${info.name}</strong></div>`;
+    document.getElementById('court-acc').value  = info.acc;
+    document.getElementById('court-name').value = info.name;
+    document.getElementById('court-bank').value = info.bank;
+    renderQRBox('court-qr-wrap', info, 'Thanh toán tiền sân', '#3b82f6');
+  } else { el.innerHTML = ''; }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1230,6 +1389,141 @@ function importData(event) {
   reader.readAsText(file);
   event.target.value = '';
 }
+
+// ═══════════════════════════════════════════════════
+// RECEIPTS (stored locally, not Firebase)
+// ═══════════════════════════════════════════════════
+function handleReceiptUpload(event) {
+  const files = [...event.target.files];
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      receipts.push({ id: Date.now()+Math.random(), dataUrl: e.target.result, name: file.name, month: curMonth });
+      loaded++;
+      if (loaded === files.length) { saveReceipts(); renderReceiptThumbs(); }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+function renderReceiptThumbs() {
+  const el = document.getElementById('receipt-thumbs');
+  if (!el) return;
+  const monthR = receipts.filter(r => !r.month || r.month === curMonth);
+  if (!monthR.length) { el.innerHTML = '<span style="font-size:12px;color:var(--muted);font-weight:600">Chưa có ảnh nào tháng này</span>'; return; }
+  el.innerHTML = monthR.map(r => `
+    <div class="receipt-thumb">
+      <img src="${r.dataUrl}" title="${r.name}" onclick="previewImg(${r.id})">
+      <button class="receipt-del" onclick="deleteReceipt(${r.id})">×</button>
+    </div>`).join('');
+}
+function deleteReceipt(id) {
+  receipts = receipts.filter(r => r.id !== id);
+  saveReceipts(); renderReceiptThumbs();
+}
+function previewImg(id) {
+  const r = receipts.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('img-modal-src').src = r.dataUrl;
+  document.getElementById('img-modal').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════════
+// SUMMARY MODAL & PDF
+// ═══════════════════════════════════════════════════
+function openSummaryModal() {
+  buildSummaryContent();
+  document.getElementById('summary-modal').style.display = 'flex';
+}
+function closeSummaryModal(e) {
+  if (!e || e.target === document.getElementById('summary-modal'))
+    document.getElementById('summary-modal').style.display = 'none';
+}
+function makeVietQR(info, memo) {
+  if (!info || !info.acc) return null;
+  const bank = bankCodeMap(info.bank);
+  return 'https://img.vietqr.io/image/' + bank + '-' + info.acc + '-compact2.png?addInfo=' + encodeURIComponent(memo||'Tennis') + '&accountName=' + encodeURIComponent(info.name||'');
+}
+function buildSummaryContent() {
+  const totals     = calcSplit();
+  const active     = Object.entries(totals).filter(function(e){return e[1].sessions>0||e[1].ball>0;}).sort(function(a,b){return b[1].total-a[1].total;});
+  const payments   = cd().payments || {};
+  const sessions   = cd().sessions || [];
+  const grandTotal = active.reduce(function(s,e){return s+e[1].total;}, 0);
+  const myInfo     = state.bankInfo  || {};
+  const courtInfo  = state.courtInfo || {};
+  const month      = fmtMonth(curMonth);
+
+  var personRows = active.map(function(entry) {
+    var name = entry[0], v = entry[1];
+    return '<div class="pdf-person-row ' + (payments[name]?'pdf-total-row':'') + '">' +
+      '<div><div style="font-weight:800;font-size:15px;font-family:Nunito,sans-serif">' + name + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);font-weight:600">' + v.sessions + ' buổi' + (v.ball?' + banh':'') + (payments[name]?' · ✓ Đã đóng':'') + '</div></div>' +
+      '<div class="pdf-amount">' + fmt(Math.round(v.total)) + ' đ</div></div>';
+  }).join('');
+
+  var sesRows = sessions.map(function(s) {
+    var n = s.players.length;
+    var cpp = (s.courtFee+s.coachFee)/n, tpp = s.tip/n, ppp = (s.parkTotal||0)/n;
+    var rows = s.players.map(function(p) {
+      return '<tr><td style="padding:3px 6px;font-weight:700">' + p + '</td>' +
+        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + fmt(Math.round(cpp)) + '</td>' +
+        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + (tpp?fmt(Math.round(tpp)):'—') + '</td>' +
+        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + (ppp?fmt(Math.round(ppp)):'—') + '</td>' +
+        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace;color:var(--accent);font-weight:800">' + fmt(Math.round(cpp+tpp+ppp)) + '</td></tr>';
+    }).join('');
+    return '<div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div><strong style="color:var(--accent)">' + fmtDate(s.date) + ' ' + s.day + '</strong>' +
+      '<span style="margin-left:8px;color:var(--muted)">' + s.time + '</span>' +
+      '<span style="margin-left:6px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:' + (s.hasCoach?'#dbeafe':'#dcfce7') + ';color:' + (s.hasCoach?'#1d4ed8':'#166534') + '">' + (s.hasCoach?'Có thầy':'Không thầy') + '</span></div>' +
+      '<strong style="font-family:DM Mono,monospace;color:var(--accent)">' + fmt(s.total) + '</strong></div>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="color:var(--muted)">' +
+      '<th style="text-align:left;padding:3px 6px;font-weight:700">Người chơi</th>' +
+      '<th style="text-align:right;padding:3px 6px;font-weight:700">Sân+Thầy</th>' +
+      '<th style="text-align:right;padding:3px 6px;font-weight:700">Tip</th>' +
+      '<th style="text-align:right;padding:3px 6px;font-weight:700">Xe</th>' +
+      '<th style="text-align:right;padding:3px 6px;font-weight:700;color:var(--accent)">Cộng</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }).join('');
+
+  var myQR = makeVietQR(myInfo, 'Tennis ' + curMonth);
+  var cQR  = makeVietQR(courtInfo, 'Tien san tennis');
+  var amounts = active.map(function(e) {
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #d1fae5;font-size:13px">' +
+      '<span style="font-weight:700">' + e[0] + '</span>' +
+      '<div style="text-align:right"><span style="font-family:DM Mono,monospace;font-weight:800;color:var(--accent)">' + fmt(Math.round(e[1].total)) + 'đ</span>' +
+      '<br><span style="font-size:10px;color:var(--muted);font-weight:600">Tennis ' + curMonth.split('-')[1] + '/' + curMonth.split('-')[0] + '</span></div></div>';
+  }).join('');
+
+  var qrHtml = (myQR || cQR) ? (
+    '<div class="pdf-sec-title">📲 Quét mã chuyển khoản</div>' +
+    '<div class="qr-grid">' +
+    (myQR ? '<div class="qr-card" style="border-color:#a7f3d0"><img src="' + myQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #a7f3d0"><div class="qr-label">Chuyển cho: ' + (myInfo.name||'') + '</div><div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + myInfo.acc + '</div><div class="qr-sub">' + myInfo.bank + '</div></div>' : '') +
+    (cQR ? '<div class="qr-card" style="border-color:#bfdbfe"><img src="' + cQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #bfdbfe"><div class="qr-label" style="color:#3b82f6">Thanh toán tiền sân</div><div class="qr-sub" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + courtInfo.acc + '</div><div class="qr-sub">' + courtInfo.bank + ' · ' + (courtInfo.name||'') + '</div></div>' : '') +
+    '<div style="flex:1;min-width:200px;background:#f0fdf4;border:2px solid #a7f3d0;border-radius:12px;padding:14px;align-self:flex-start">' +
+    '<div style="font-weight:800;color:var(--accent);margin-bottom:10px;font-family:Nunito,sans-serif">📋 Số tiền cần chuyển</div>' +
+    amounts + '</div></div>'
+  ) : '';
+
+  document.getElementById('pdf-content').innerHTML =
+    '<div class="pdf-hdr">' +
+    '<div style="font-size:28px;margin-bottom:6px">🎾</div>' +
+    '<h1>Quyết Toán Tennis</h1>' +
+    '<p>' + month + ' · ' + sessions.length + ' buổi tập · Tổng: <strong>' + fmt(grandTotal) + ' VNĐ</strong></p></div>' +
+    '<div class="pdf-sec-title">💰 Số tiền từng người đóng</div>' +
+    personRows +
+    '<div class="pdf-person-row pdf-total-row" style="margin-top:4px">' +
+    '<strong style="font-size:15px;font-family:Nunito,sans-serif">📊 TỔNG CỘNG</strong>' +
+    '<div class="pdf-amount" style="font-size:20px">' + fmt(grandTotal) + ' đ</div></div>' +
+    qrHtml +
+    '<div class="pdf-sec-title">🗒 Chi Tiết Theo Buổi</div>' +
+    (sesRows || '<p style="color:var(--muted);padding:10px;font-size:13px">Chưa có buổi nào</p>') +
+    '<div style="text-align:center;margin-top:18px;padding-top:14px;border-top:2px dashed var(--border);color:var(--muted);font-size:11px;font-weight:600">Tạo bởi 🎾 Tennis Manager · ' + new Date().toLocaleDateString('vi-VN') + '</div>';
+}
+
+
 
 init();
 </script>
