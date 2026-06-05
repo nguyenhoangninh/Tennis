@@ -4,127 +4,143 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎾 Tennis Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Tích hợp Font chữ Cute và Trẻ trung (Nunito + DM Sans) -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Nunito:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
+/* ── BẢNG MÀU TƯƠI SÁNG & TRẺ TRUNG ── */
 :root{
-  --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;
-  --accent:#e6c84a;--accent2:#4ade80;--accent3:#60a5fa;
-  --text:#e6edf3;--muted:#7d8590;--danger:#f85149;
+  --bg: #f0fdf4; /* Nền xanh mint cực nhạt, rất fresh */
+  --surface: #ffffff; /* Thẻ trắng tinh khôi nổi bật */
+  --surface2: #f8fafc; /* Màu nền cho input, chip */
+  --border: #e2e8f0; /* Viền xám sáng gọn gàng */
+  --accent: #10b981; /* Xanh lá Tennis / Emerald tràn đầy năng lượng */
+  --accent-hover: #059669; /* Xanh lá đậm khi trỏ chuột */
+  --accent2: #3b82f6; /* Xanh dương da trời sáng */
+  --accent3: #f59e0b; /* Vàng cam đất nện tennis */
+  --text: #1e293b; /* Chữ xám đen sắc nét rõ ràng */
+  --muted: #64748b; /* Chữ chú thích xám nhạt */
+  --danger: #f43f5e; /* Đỏ hồng cute */
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;}
 
 /* ── LAYOUT ── */
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--accent);display:flex;align-items:center;gap:8px;}
+header{background:var(--surface);box-shadow:0 2px 12px rgba(0,0,0,0.04);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:65px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:24px;color:var(--accent);display:flex;align-items:center;gap:8px;text-shadow: 1px 1px 0px rgba(16,185,129,0.1);}
 .month-nav{display:flex;align-items:center;gap:10px;}
-.month-nav button{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;transition:.15s;}
-.month-nav button:hover{border-color:var(--accent);color:var(--accent);}
-#curMonthLbl{font-family:'DM Mono',monospace;font-size:15px;color:var(--accent);min-width:110px;text-align:center;}
-#sync-status{font-size:11px;padding:3px 8px;border-radius:12px;font-weight:600;margin-left:8px;}
-#sync-status.ok{background:rgba(74,222,128,.15);color:var(--accent2);}
-#sync-status.saving{background:rgba(230,200,74,.15);color:var(--accent);}
-#sync-status.err{background:rgba(248,81,73,.15);color:var(--danger);}
+.month-nav button{background:var(--surface);border:2px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:16px;font-weight:bold;transition:.2s;}
+.month-nav button:hover{border-color:var(--accent);color:var(--accent);background:#ecfdf5;transform:translateY(-1px);}
+#curMonthLbl{font-family:'DM Mono',monospace;font-weight:600;font-size:15px;color:var(--text);min-width:110px;text-align:center;}
 
-.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 20px;gap:2px;overflow-x:auto;}
-.tab{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;transition:.15s;font-weight:500;white-space:nowrap;}
-.tab:hover{color:var(--text);}
+#sync-status{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:700;margin-left:8px;font-family:'Nunito',sans-serif;}
+#sync-status.ok{background:#ecfdf5;color:var(--accent); border:1px solid #a7f3d0;}
+#sync-status.saving{background:#fef3c7;color:var(--accent3); border:1px solid #fde68a;}
+#sync-status.err{background:#ffe4e6;color:var(--danger); border:1px solid #fecdd3;}
+
+.tabs{display:flex;background:var(--surface);box-shadow:0 2px 8px rgba(0,0,0,0.02);padding:0 20px;gap:4px;overflow-x:auto;}
+.tab{padding:12px 16px;cursor:pointer;font-size:14px;color:var(--muted);border-bottom:3px solid transparent;transition:.2s;font-weight:700;font-family:'Nunito',sans-serif;white-space:nowrap;}
+.tab:hover{color:var(--accent2);}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-.panel{display:none;padding:22px;max-width:1100px;margin:0 auto;}
+.panel{display:none;padding:24px;max-width:1100px;margin:0 auto;}
 .panel.active{display:block;}
 
 /* ── COMMON COMPONENTS ── */
-.sec{font-family:'Instrument Serif',serif;font-size:19px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+.sec{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card{background:var(--surface);border:none;box-shadow:0 8px 24px rgba(148,163,184,0.12);border-radius:16px;padding:22px;margin-bottom:16px;}
 
-.frow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
-.fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:120px;}
+.frow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;}
+.fg{display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px;}
 .fg.n{flex:0 0 140px;min-width:120px;}
 .fg.w{flex:2;}
-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
-input,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 11px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:.15s;width:100%;}
-input:focus,select:focus{border-color:var(--accent3);}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-family:'Nunito',sans-serif;}
+input,select{background:var(--surface2);border:2px solid var(--border);color:var(--text);padding:8px 12px;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;outline:none;transition:.2s;width:100%;}
+input:focus,select:focus{border-color:var(--accent);background:#ffffff;box-shadow:0 0 0 4px rgba(16,185,129,0.15);}
 input[type=number]{font-family:'DM Mono',monospace;}
 
-.chips{display:flex;flex-wrap:wrap;gap:7px;}
-.chip{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:.15s;font-size:13px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--surface2);border:2px solid var(--border);border-radius:20px;cursor:pointer;transition:.2s;font-size:13px;font-weight:600;color:var(--muted);}
 .chip input{width:auto;padding:0;}
-.chip:has(input:checked){background:rgba(230,200,74,.15);border-color:var(--accent);color:var(--accent);}
+.chip:has(input:checked){background:#ecfdf5;border-color:var(--accent);color:var(--accent);}
 
-.btn{padding:7px 16px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;white-space:nowrap;}
-.btn-p{background:var(--accent);color:#0d1117;}.btn-p:hover{background:#f0d55a;}
-.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-s:hover{border-color:var(--accent3);}
-.btn-d{background:transparent;color:var(--danger);border:1px solid var(--danger);font-size:12px;padding:3px 9px;}.btn-d:hover{background:rgba(248,81,73,.15);}
-.btn-w{background:transparent;color:var(--accent);border:1px solid var(--accent);font-size:12px;padding:3px 9px;}.btn-w:hover{background:rgba(230,200,74,.1);}
-.btn-sm{padding:4px 11px;font-size:12px;}
+/* Nút bấm Bo tròn Cute, Hiệu ứng Nảy */
+.btn{padding:8px 18px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.3px;cursor:pointer;border:none;transition:all .2s cubic-bezier(0.4, 0, 0.2, 1);white-space:nowrap;}
+.btn-p{background:var(--accent);color:#ffffff;box-shadow:0 4px 12px rgba(16,185,129,0.25);}
+.btn-p:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,185,129,0.35);}
+.btn-s{background:#ffffff;color:var(--text);border:2px solid var(--border);}
+.btn-s:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-1px);}
+.btn-d{background:#fff1f2;color:var(--danger);border:1px solid #fecdd3;font-size:12px;padding:5px 12px;}
+.btn-d:hover{background:var(--danger);color:#fff;}
+.btn-w{background:#f0fdf4;color:var(--accent);border:1px solid #a7f3d0;font-size:12px;padding:5px 12px;}
+.btn-w:hover{background:var(--accent);color:#fff;}
+.btn-sm{padding:6px 14px;font-size:13px;}
 
 /* ── TABLE ── */
 .tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
-th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:9px 11px;border-bottom:1px solid var(--border);font-weight:600;}
-td{padding:9px 11px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle;}
-tfoot td{border-top:2px solid var(--border);border-bottom:none;font-weight:700;color:var(--accent);background:var(--surface2);}
+th{text-align:left;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:12px 14px;border-bottom:2px solid var(--border);font-weight:800;font-family:'Nunito',sans-serif;}
+td{padding:12px 14px;border-bottom:1px dashed #cbd5e1;vertical-align:middle;color:var(--text);font-weight:500;}
+tfoot td{border-top:2px solid var(--accent);border-bottom:none;font-weight:800;color:var(--text);background:#f8fafc;}
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(255,255,255,.02);}
+tr:hover td{background:#f8fafc;}
 .num{font-family:'DM Mono',monospace;text-align:right;}
-.tag{display:inline-block;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:600;}
-.tc{background:rgba(96,165,250,.2);color:var(--accent3);}
-.tnc{background:rgba(74,222,128,.2);color:var(--accent2);}
-.tp{background:rgba(230,200,74,.1);color:var(--accent);font-size:11px;padding:2px 5px;border-radius:10px;margin:1px;}
+.tag{display:inline-block;padding:3px 10px;border-radius:14px;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;}
+.tc{background:#eff6ff;color:var(--accent2);border:1px solid #bfdbfe;} /* Xanh dương nhạt */
+.tnc{background:#ecfdf5;color:var(--accent);border:1px solid #a7f3d0;} /* Xanh lá nhạt */
+.tp{background:#fffbeb;color:var(--accent3);font-size:11px;padding:3px 8px;border-radius:10px;margin:2px;font-weight:700;}
 
 /* ── SUMMARY CARDS ── */
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:18px;}
-.scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
-.slbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
-.sval{font-family:'DM Mono',monospace;font-size:21px;color:var(--accent);font-weight:500;}
-.ssub{font-size:11px;color:var(--muted);margin-top:3px;}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.scard{background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);border:2px solid var(--border);border-radius:16px;padding:16px 20px;box-shadow:0 4px 12px rgba(0,0,0,0.02);}
+.slbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-family:'Nunito',sans-serif;font-weight:800;}
+.sval{font-family:'Nunito',sans-serif;font-size:26px;color:var(--accent);font-weight:900;}
+.ssub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;}
 
 /* ── MISC ── */
-.alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;border-left:3px solid;}
-.alert-info{background:rgba(96,165,250,.08);border-color:var(--accent3);color:var(--accent3);}
-.paid{color:var(--accent2);font-size:12px;font-weight:600;}
-.unpaid{color:var(--danger);font-size:12px;font-weight:600;}
-.split-row td{background:rgba(230,200,74,.03);}
-.mbadge{display:inline-block;padding:4px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin:0 6px 6px 0;cursor:pointer;transition:.15s;}
-.mbadge:hover,.mbadge.cv{border-color:var(--accent);background:rgba(230,200,74,.15);}
-.empty{text-align:center;padding:36px;color:var(--muted);font-size:13px;}
-.ei{font-size:34px;margin-bottom:7px;}
-.mt{margin-top:14px;}
+.alert{padding:14px 18px;border-radius:12px;font-size:14px;margin-bottom:16px;border-left:4px solid;font-weight:500;}
+.alert-info{background:#eff6ff;border-color:var(--accent2);color:#1e3a8a;}
+.paid{color:var(--accent);font-size:13px;font-weight:800;background:#ecfdf5;padding:3px 8px;border-radius:8px;}
+.unpaid{color:var(--danger);font-size:13px;font-weight:800;background:#fff1f2;padding:3px 8px;border-radius:8px;}
+.split-row td{background:transparent;}
+.mbadge{display:inline-block;padding:6px 14px;background:var(--surface);border:2px solid var(--border);border-radius:20px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--text);margin:0 8px 8px 0;cursor:pointer;transition:.2s;}
+.mbadge:hover,.mbadge.cv{border-color:var(--accent);background:#ecfdf5;color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 8px rgba(16,185,129,0.15);}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;font-weight:600;}
+.ei{font-size:40px;margin-bottom:10px;}
+.mt{margin-top:20px;}
 
 /* ── CALENDAR ── */
-.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.chead{text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:5px 0;text-transform:uppercase;}
-.cday{min-height:70px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px;}
-.cday.om{opacity:.3;}
-.cday.hs{border-color:rgba(230,200,74,.4);background:rgba(230,200,74,.04);}
-.cday.td{border-color:var(--accent3);}
-.cdnum{font-size:12px;font-weight:600;margin-bottom:3px;color:var(--muted);}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.chead{text-align:center;font-size:12px;color:var(--muted);font-weight:800;padding:6px 0;text-transform:uppercase;font-family:'Nunito',sans-serif;}
+.cday{min-height:76px;background:var(--surface);border:2px solid #f1f5f9;border-radius:12px;padding:8px;transition:.2s;}
+.cday.om{opacity:.4;background:transparent;border:none;}
+.cday.hs{background:#ecfdf5;border-color:#a7f3d0;}
+.cday.td{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(59,130,246,0.2);}
+.cdnum{font-size:14px;font-weight:800;margin-bottom:4px;color:var(--muted);font-family:'Nunito',sans-serif;}
 .cday.hs .cdnum{color:var(--accent);}
-.cpill{font-size:10px;background:rgba(230,200,74,.2);color:var(--accent);border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cpill.nc{background:rgba(74,222,128,.15);color:var(--accent2);}
+.cpill{font-size:11px;background:#fff;color:var(--accent2);border:1px solid #bfdbfe;border-radius:6px;padding:2px 6px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;}
+.cpill.nc{color:var(--accent);border-color:#a7f3d0;}
 
 /* ── DATE PICKER ── */
-.dpgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:7px;}
-.dpd{text-align:center;padding:7px 3px;border-radius:5px;cursor:pointer;font-size:13px;border:1px solid transparent;background:var(--surface2);transition:.15s;}
-.dpd:hover{border-color:var(--accent3);}
-.dpd.sel{background:rgba(230,200,74,.2);border-color:var(--accent);color:var(--accent);font-weight:600;}
+.dpgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;}
+.dpd{text-align:center;padding:8px 4px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;border:2px solid transparent;background:var(--surface2);transition:.2s;}
+.dpd:hover{border-color:var(--accent2);background:#eff6ff;}
+.dpd.sel{background:#ecfdf5;border-color:var(--accent);color:var(--accent);font-weight:800;}
 .dpd.om{opacity:.3;pointer-events:none;}
-.dph{text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:3px 0;}
+.dph{text-align:center;font-size:11px;color:var(--muted);font-weight:800;padding:4px 0;font-family:'Nunito',sans-serif;}
 
 /* ── MODAL ── */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;}
-.mtitle{font-family:'Instrument Serif',serif;font-size:19px;color:var(--accent);margin-bottom:16px;}
-.mact{display:flex;gap:9px;margin-top:16px;justify-content:flex-end;}
+.moverlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:var(--surface);border:none;box-shadow:0 20px 40px rgba(0,0,0,0.1);border-radius:20px;padding:28px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;}
+.mtitle{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:16px;}
+.mact{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
 
 @media(max-width:600px){
-  .panel{padding:12px;}
-  header{padding:0 12px;}
-  .cday{min-height:50px;}
+  .panel{padding:16px;}
+  header{padding:0 16px;}
+  .cday{min-height:56px;}
   .cpill{display:none;}
   .fg.n{flex:0 0 120px;min-width:110px;}
 }
@@ -134,7 +150,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 <header>
   <div class="logo">🎾 Tennis Manager</div>
-  <div style="display:flex;align-items:center;gap:8px">
+  <div style="display:flex;align-items:center;gap:12px">
     <span id="sync-status" class="ok">☁ Đã lưu</span>
     <div class="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
@@ -175,17 +191,17 @@ tr:hover td{background:rgba(255,255,255,.02);}
         <div class="chips" id="player-cbs"></div>
       </div>
     </div>
-    <div style="margin-top:8px">
-      <label style="display:block;margin-bottom:7px">Chọn ngày tập (có thể chọn nhiều ngày)</label>
+    <div style="margin-top:10px">
+      <label style="display:block;margin-bottom:8px">Chọn ngày tập (có thể chọn nhiều ngày)</label>
       <div id="dp-wrap"></div>
     </div>
-    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-p" onclick="addSession()">+ Thêm Buổi Tập</button>
-      <span id="sel-dates-lbl" style="font-size:12px;color:var(--muted)">Chưa chọn ngày nào</span>
+      <span id="sel-dates-lbl" style="font-size:13px;color:var(--muted);font-weight:600">Chưa chọn ngày nào</span>
     </div>
   </div>
 
-  <div class="sec mt">📋 Danh Sách Buổi — <span id="ses-month-title" style="font-size:15px;color:var(--muted)"></span></div>
+  <div class="sec mt">📋 Danh Sách Buổi — <span id="ses-month-title" style="font-size:16px;color:var(--muted)"></span></div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
       <thead><tr>
@@ -201,16 +217,16 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 <!-- ═══════════ TAB: CALENDAR ═══════════ -->
 <div id="tab-calendar" class="panel">
-  <div class="sec">📅 Lịch Tháng — <span id="cal-title" style="font-size:15px;color:var(--muted)"></span></div>
+  <div class="sec">📅 Lịch Tháng — <span id="cal-title" style="font-size:16px;color:var(--muted)"></span></div>
   <div class="card">
     <div class="cgrid" id="cal-heads"></div>
-    <div style="height:6px"></div>
+    <div style="height:8px"></div>
     <div class="cgrid" id="cal-body"></div>
   </div>
-  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)">
+  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;font-weight:700;color:var(--text);margin-top:8px;padding-left:4px;">
     <span>🔵 Hôm nay</span>
-    <span style="color:var(--accent)">🟡 Có thầy</span>
-    <span style="color:var(--accent2)">🟢 Không thầy</span>
+    <span style="color:var(--accent2)">🟦 Có thầy</span>
+    <span style="color:var(--accent)">🟩 Không thầy</span>
   </div>
 </div>
 
@@ -228,32 +244,36 @@ tr:hover td{background:rgba(255,255,255,.02);}
         <div class="chips" id="ball-players"></div>
       </div>
     </div>
-    <div id="ball-pp" style="font-size:12px;color:var(--accent);margin-top:4px"></div>
+    <div id="ball-pp" style="font-size:13px;font-weight:700;color:var(--accent);margin-top:6px"></div>
   </div>
 
-  <div class="sec">💸 Ma Trận Chi Phí</div>
+  <div class="sec">💸 Ma Trận Chi Phí Tổng</div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
       <thead><tr>
-        <th>Danh sách người chơi</th>
-        <th class="num">💰 Tiền sân (+Thầy)</th>
+        <th>Thành viên</th>
+        <th class="num">💰 Sân (+Thầy)</th>
         <th class="num">🫶 Tip</th>
         <th class="num">🚗 Gửi xe</th>
         <th class="num">🎾 Tiền banh</th>
-        <th class="num" style="color:var(--accent)">TỔNG CHI PHÍ</th>
+        <th class="num" style="color:var(--accent)">TỔNG PHẢI ĐÓNG</th>
       </tr></thead>
       <tbody id="split-body"></tbody>
       <tfoot id="split-footer"></tfoot>
     </table></div>
   </div>
+
+  <!-- PHẦN PHỤC HỒI LẠI: CHI TIẾT THEO TỪNG BUỔI TẬP -->
+  <div class="sec mt">📊 Chi Tiết Theo Từng Buổi Tập</div>
+  <div id="per-session-detail"></div>
 </div>
 
 <!-- ═══════════ TAB: PAYMENTS ═══════════ -->
 <div id="tab-payments" class="panel">
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
   <div class="card">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">
-      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:600"></span> — Tick ✓ sau khi nhận tiền
+    <div style="font-size:14px;color:var(--muted);margin-bottom:16px;font-weight:600">
+      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:800"></span> — Tick ✓ sau khi nhận tiền
     </div>
     <div id="pay-list"></div>
   </div>
@@ -264,18 +284,20 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="fg"><label>Tên tài khoản</label><input type="text" id="bank-name" placeholder="Nguyen Hoang Ninh"></div>
       <div class="fg"><label>Ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
     </div>
-    <button class="btn btn-p btn-sm" onclick="saveBankInfo()">Lưu</button>
-    <div id="bank-disp" style="margin-top:12px"></div>
+    <div style="margin-top:16px">
+      <button class="btn btn-p btn-sm" onclick="saveBankInfo()">Lưu Thông Tin</button>
+    </div>
+    <div id="bank-disp" style="margin-top:16px"></div>
   </div>
 </div>
 
 <!-- ═══════════ TAB: HISTORY ═══════════ -->
 <div id="tab-history" class="panel">
   <div class="sec">📈 Biểu Đồ Chi Phí Theo Tháng</div>
-  <div class="card" style="height:300px;padding:18px">
+  <div class="card" style="height:320px;padding:24px">
     <canvas id="historyChart"></canvas>
   </div>
-  <div class="sec">📊 Bảng Thống Kê Tổng Hợp</div>
+  <div class="sec mt">📊 Bảng Thống Kê Tổng Hợp</div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
       <thead><tr>
@@ -299,7 +321,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="fg n"><label>Giá Thầy</label><input type="number" id="md-coach" step="10000"></div>
       <div class="fg n"><label>Tip</label><input type="number" id="md-tip" step="10000"></div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
+    <div style="display:flex;gap:10px;margin-bottom:20px;margin-top:10px">
       <button class="btn btn-p" id="btn-md-save" onclick="saveMD()">+ Thêm Gói Mới</button>
       <button class="btn btn-s" id="btn-md-cancel" style="display:none" onclick="cancelMD()">Hủy Sửa</button>
     </div>
@@ -315,17 +337,17 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="fg"><label>Tên thành viên</label><input type="text" id="new-member" placeholder="Tên..."></div>
       <button class="btn btn-p" onclick="addMember()">+ Thêm</button>
     </div>
-    <div id="member-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"></div>
+    <div id="member-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"></div>
   </div>
 
-  <div class="sec">☁ Firebase — Đồng Bộ Đám Mây</div>
+  <div class="sec">☁ Cài Đặt Hệ Thống & Dữ Liệu</div>
   <div class="card">
-    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Dữ liệu tự động đồng bộ lên Firebase Realtime Database. Mọi thành viên mở app là thấy dữ liệu mới nhất.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px;font-weight:500;">Dữ liệu tự động đồng bộ lên Firebase. Tuy nhiên bạn có thể xuất/nhập thủ công để sao lưu an toàn.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
       <button class="btn btn-s" onclick="exportData()">📤 Xuất JSON (Backup)</button>
       <button class="btn btn-s" onclick="document.getElementById('imp-file').click()">📥 Nhập JSON</button>
       <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(event)">
-      <button class="btn btn-s" onclick="forceSync()">🔄 Đồng bộ thủ công</button>
+      <button class="btn btn-s" onclick="forceSync()">🔄 Đồng bộ tải về máy</button>
     </div>
   </div>
 </div>
@@ -333,12 +355,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <!-- ═══════════ EDIT MODAL ═══════════ -->
 <div id="edit-modal" class="moverlay" style="display:none" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="mtitle">✏️ Chỉnh Sửa Buổi (Ghi Đè Ngoại Lệ)</div>
-    <div class="alert alert-info">Dùng khi buổi đó phát sinh chi phí khác bình thường.</div>
+    <div class="mtitle">✏️ Chỉnh Sửa Buổi Tập</div>
+    <div class="alert alert-info">Sửa Khung Giờ (Ca) và chi phí nếu buổi đó phát sinh khác với Master Data.</div>
     <input type="hidden" id="edit-id">
     <div class="frow">
-      <div class="fg n"><label>Ngày</label><input type="date" id="edit-date" readonly style="opacity:.6"></div>
-      <div class="fg n"><label>Ca tập</label><input type="text" id="edit-time" readonly style="opacity:.6"></div>
+      <div class="fg n"><label>Ngày</label><input type="date" id="edit-date" readonly style="opacity:.6; cursor:not-allowed;"></div>
+      <!-- BỎ READONLY CHO PHÉP SỬA "CA" -->
+      <div class="fg n"><label>Ca tập (Giờ)</label><input type="text" id="edit-time" placeholder="VD: T7 (15h-16h)"></div>
       <div class="fg n"><label>Có thầy?</label>
         <select id="edit-coach"><option value="yes">✅ Có thầy</option><option value="no">❌ Không thầy</option></select>
       </div>
@@ -349,19 +372,19 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="fg"><label>Tip</label><input type="number" id="edit-tip" step="10000"></div>
       <div class="fg n"><label>Số xe</label><input type="number" id="edit-pcount" min="0"></div>
     </div>
-    <div class="fg" style="margin-bottom:14px"><label>Người chơi</label>
+    <div class="fg" style="margin-bottom:20px; margin-top:10px;"><label>Người chơi</label>
       <div class="chips" id="edit-player-cbs"></div>
     </div>
     <div class="mact">
-      <button class="btn btn-s" onclick="document.getElementById('edit-modal').style.display='none'">Hủy</button>
-      <button class="btn btn-p" onclick="saveEdit()">💾 Lưu Ghi Đè</button>
+      <button class="btn btn-s" onclick="document.getElementById('edit-modal').style.display='none'">Hủy Bỏ</button>
+      <button class="btn btn-p" onclick="saveEdit()">💾 Lưu Thay Đổi</button>
     </div>
   </div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════
-// FIREBASE CONFIG — Thay bằng config của bạn
+// FIREBASE CONFIG (Giữ nguyên của anh)
 // ═══════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyD8g-xlQVX60xLqMzQNe7g-Ec2S1APdT2k",
@@ -408,7 +431,6 @@ function initFirebase() {
     db = firebase.database();
     setSyncStatus('saving', '⏳ Đang tải...');
 
-    // Lắng nghe thay đổi realtime từ bất kỳ thiết bị nào
     db.ref(FB_PATH).on('value', snapshot => {
       const cloud = snapshot.val();
       if (cloud && cloud.members) {
@@ -416,7 +438,7 @@ function initFirebase() {
         ensureMonth(curMonth);
         render();
       }
-      setSyncStatus('ok', '☁ Đồng bộ');
+      setSyncStatus('ok', '☁ Cập nhật Live');
     }, err => {
       console.warn('Firebase read error:', err);
       setSyncStatus('err', '⚠ Offline');
@@ -436,9 +458,7 @@ function setSyncStatus(cls, text) {
 }
 
 function save() {
-  // Backup local
   try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch(e){}
-  // Push to Firebase
   if (db) {
     setSyncStatus('saving', '⏳ Đang lưu...');
     db.ref(FB_PATH).set(state)
@@ -461,29 +481,18 @@ function forceSync() {
 // INIT
 // ═══════════════════════════════════════════════════
 function init() {
-  // 1. Load local cache ngay để UI không bị trắng
   const saved = localStorage.getItem(DB_KEY);
   if (saved) try { state = JSON.parse(saved); } catch(e){}
-
-  // 2. Đảm bảo có masterData mặc định
   if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
 
-  // 3. Thiết lập tháng hiện tại
   const now = new Date();
   curMonth    = ym(now.getFullYear(), now.getMonth()+1);
   dpViewMonth = curMonth;
   ensureMonth(curMonth);
-
-  // 4. Vẽ UI từ cache trước
   render();
-
-  // 5. Kết nối Firebase (sẽ update lại UI khi có dữ liệu mới hơn)
   initFirebase();
 }
 
-// ═══════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════
 function ensureMonth(m) {
   if (!state.months[m]) state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[], bankInfo:{} };
 }
@@ -526,9 +535,6 @@ function sw(name) {
   if (name==='settings') renderSettings();
 }
 
-// ═══════════════════════════════════════════════════
-// FULL RENDER
-// ═══════════════════════════════════════════════════
 function render() {
   document.getElementById('curMonthLbl').textContent     = fmtMonth(curMonth);
   document.getElementById('ses-month-title').textContent = fmtMonth(curMonth);
@@ -548,7 +554,6 @@ function render() {
 // MASTER DATA (SETTINGS TAB)
 // ═══════════════════════════════════════════════════
 function renderSettings() {
-  // Master data table
   const tbody = document.getElementById('md-body');
   if (!tbody) return;
   if (!state.masterData.length) {
@@ -556,24 +561,23 @@ function renderSettings() {
   } else {
     tbody.innerHTML = state.masterData.map(md => `
       <tr>
-        <td><strong>${md.name}</strong></td>
+        <td style="font-weight:800">${md.name}</td>
         <td class="num">${fmt(md.court)}</td>
         <td class="num">${fmt(md.coach)}</td>
         <td class="num">${fmt(md.tip)}</td>
-        <td style="display:flex;gap:4px;justify-content:flex-end">
+        <td style="display:flex;gap:6px;justify-content:flex-end">
           <button class="btn btn-w btn-sm" onclick="editMD(${md.id})">✏️</button>
           <button class="btn btn-d btn-sm" onclick="deleteMD(${md.id})">✕</button>
         </td>
       </tr>`).join('');
   }
 
-  // Member list
   const ml = document.getElementById('member-list');
   if (ml) {
     ml.innerHTML = state.members.map((m,i) => `
-      <div style="display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px">
-        <div style="width:7px;height:7px;border-radius:50%;background:var(--accent)"></div>${m}
-        <button class="btn btn-d btn-sm" onclick="removeMember(${i})">✕</button>
+      <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>${m}
+        <button class="btn btn-d btn-sm" style="margin-left:6px;padding:4px 10px;" onclick="removeMember(${i})">✕</button>
       </div>`).join('');
   }
 }
@@ -601,7 +605,7 @@ function editMD(id) {
   document.getElementById('md-court').value   = md.court;
   document.getElementById('md-coach').value   = md.coach;
   document.getElementById('md-tip').value     = md.tip;
-  document.getElementById('btn-md-save').textContent      = '💾 Cập Nhật';
+  document.getElementById('btn-md-save').textContent      = '💾 Cập Nhật Gói';
   document.getElementById('btn-md-cancel').style.display  = 'inline-block';
 }
 function cancelMD() {
@@ -622,7 +626,6 @@ function renderTemplateDropdown() {
     : `<option value="">-- Chưa có gói nào (vào Cài Đặt để thêm) --</option>`;
 }
 
-// Members
 function addMember() {
   const n = document.getElementById('new-member').value.trim();
   if (!n || state.members.includes(n)) { alert(n ? 'Tên đã tồn tại!' : 'Nhập tên!'); return; }
@@ -645,11 +648,11 @@ function renderDp() {
   const prevDays    = new Date(y,m-1,0).getDate();
   const todayStr    = ym(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
 
-  let html = `<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
     <button class="btn btn-s btn-sm" onclick="dpShift(-1)">‹</button>
-    <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent)">${fmtMonth(dpViewMonth)}</span>
+    <span style="font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:var(--accent)">${fmtMonth(dpViewMonth)}</span>
     <button class="btn btn-s btn-sm" onclick="dpShift(1)">›</button>
-    <button class="btn btn-s btn-sm" onclick="selDates.clear();renderDp();updLbl()" style="margin-left:6px">Bỏ hết</button>
+    <button class="btn btn-s btn-sm" onclick="selDates.clear();renderDp();updLbl()" style="margin-left:12px;background:#f8fafc;border-color:transparent">Bỏ chọn hết</button>
   </div><div class="dpgrid">`;
 
   ['CN','T2','T3','T4','T5','T6','T7'].forEach(d => html += `<div class="dph">${d}</div>`);
@@ -676,7 +679,7 @@ function updLbl() {
   const el = document.getElementById('sel-dates-lbl');
   if (!el) return;
   el.textContent = selDates.size
-    ? `Đã chọn ${selDates.size} ngày: ${[...selDates].sort().map(fmtDate).join(', ')}`
+    ? `✅ Đã chọn ${selDates.size} ngày: ${[...selDates].sort().map(fmtDate).join(', ')}`
     : 'Chưa chọn ngày nào';
 }
 
@@ -750,18 +753,18 @@ function renderSessionsTable() {
   }
   tbody.innerHTML = sessions.map(s => `<tr>
     <td>
-      <span style="font-family:'DM Mono',monospace;font-size:12px">${fmtDate(s.date)}</span>
-      <br><span style="color:var(--muted);font-size:11px">${s.day}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${fmtDate(s.date)}</span>
+      <br><span style="color:var(--muted);font-size:12px;font-weight:600">${s.day}</span>
     </td>
-    <td style="max-width:140px;font-size:13px">${s.time}</td>
+    <td style="max-width:160px;font-size:14px;font-weight:700">${s.time}</td>
     <td><span class="tag ${s.hasCoach?'tc':'tnc'}">${s.hasCoach?'Có thầy':'Không thầy'}</span></td>
     <td class="num">${fmt(s.courtFee)}</td>
     <td class="num">${fmtOrDash(s.coachFee)}</td>
     <td class="num">${fmtOrDash(s.tip)}</td>
     <td class="num">${s.parkTotal ? `${s.parkCount}xe×5k` : '—'}</td>
-    <td class="num" style="color:var(--accent);font-weight:600">${fmt(s.total)}</td>
+    <td class="num" style="color:var(--accent);font-weight:800;font-size:15px">${fmt(s.total)}</td>
     <td>${s.players.map(p=>`<span class="tp">${p}</span>`).join('')}</td>
-    <td style="display:flex;gap:4px;justify-content:flex-end">
+    <td style="display:flex;gap:6px;justify-content:flex-end">
       <button class="btn btn-w btn-sm" onclick="openEdit(${s.id})">✏️</button>
       <button class="btn btn-d btn-sm" onclick="deleteSession(${s.id})">✕</button>
     </td>
@@ -769,14 +772,14 @@ function renderSessionsTable() {
 }
 
 // ═══════════════════════════════════════════════════
-// EDIT MODAL
+// EDIT MODAL (GHI NHẬN FIX CA TẬP)
 // ═══════════════════════════════════════════════════
 function openEdit(id) {
   const s = cd().sessions.find(x => x.id===id);
   if (!s) return;
   document.getElementById('edit-id').value       = id;
   document.getElementById('edit-date').value     = s.date;
-  document.getElementById('edit-time').value     = s.time;
+  document.getElementById('edit-time').value     = s.time; // Sẽ sửa được
   document.getElementById('edit-coach').value    = s.hasCoach ? 'yes' : 'no';
   document.getElementById('edit-court').value    = s.courtFee;
   document.getElementById('edit-coachfee').value = s.coachFee || 0;
@@ -793,6 +796,10 @@ function saveEdit() {
   const id = parseFloat(document.getElementById('edit-id').value);
   const s  = cd().sessions.find(x => x.id===id);
   if (!s) return;
+  
+  // Đã cập nhật lấy giá trị Ca từ ô text
+  s.time = document.getElementById('edit-time').value.trim(); 
+  
   s.hasCoach  = document.getElementById('edit-coach').value === 'yes';
   s.courtFee  = pn(document.getElementById('edit-court').value);
   s.coachFee  = s.hasCoach ? pn(document.getElementById('edit-coachfee').value) : 0;
@@ -802,6 +809,7 @@ function saveEdit() {
   s.parkTotal = s.parkCount * PARKING_FEE;
   s.players   = [...document.querySelectorAll('#edit-player-cbs input:checked')].map(c=>c.value);
   s.total     = s.courtFee + s.coachFee + s.tip + s.parkTotal;
+  
   save();
   document.getElementById('edit-modal').style.display = 'none';
   renderSessionsTable(); renderSplit();
@@ -831,7 +839,7 @@ function renderCalendar() {
     const ds = ym(y,m,d), ss = byDate[ds]||[], isToday = ds===todayStr;
     html += `<div class="cday${ss.length?' hs':''}${isToday?' td':''}">
       <div class="cdnum">${d}</div>
-      ${ss.map(s=>`<div class="cpill${s.hasCoach?'':' nc'}" title="${s.time}: ${fmt(s.total)}">${s.time}: ${fmt(s.total)}</div>`).join('')}
+      ${ss.map(s=>`<div class="cpill${s.hasCoach?'':' nc'}" title="${s.time}: ${fmt(s.total)}">${s.time} : ${fmt(s.total)}</div>`).join('')}
     </div>`;
   }
   document.getElementById('cal-body').innerHTML = html;
@@ -862,12 +870,12 @@ function updateBallPP() {
   if (!el) return;
   const cost = cd().ballCost, players = cd().ballPlayers || [];
   el.textContent = (cost && players.length)
-    ? `→ Mỗi người: ${fmt(Math.round(cost/players.length))} (${players.length} người)`
+    ? `🎾 Mỗi người chia: ${fmt(Math.round(cost/players.length))} (${players.length} người)`
     : '';
 }
 
 // ═══════════════════════════════════════════════════
-// SPLIT CALCULATION
+// SPLIT CALCULATION (THÊM BẢNG CHI TIẾT TỪNG BUỔI)
 // ═══════════════════════════════════════════════════
 function calcSplit() {
   const sessions = cd().sessions;
@@ -907,27 +915,27 @@ function renderSplit() {
   const payments = cd().payments;
   const sessions = cd().sessions;
 
-  // Summary cards
+  // 1. Thẻ Summary
   const sumTotal = active.reduce((s,[,v])=>s+v.total, 0);
   document.getElementById('sum-cards').innerHTML = `
     <div class="scard"><div class="slbl">Tổng chi phí</div><div class="sval">${fmt(sumTotal)}</div><div class="ssub">${fmtMonth(curMonth)}</div></div>
     <div class="scard"><div class="slbl">Số buổi</div><div class="sval">${sessions.length}</div><div class="ssub">buổi tập</div></div>
     <div class="scard"><div class="slbl">Đã thanh toán</div><div class="sval" style="color:var(--accent2)">${Object.values(payments).filter(v=>v).length}/${active.length}</div><div class="ssub">người</div></div>`;
 
-  // Matrix rows
+  // 2. Bảng Ma Trận
   let sumCourt=0, sumTip=0, sumPark=0, sumBall=0, sumAll=0;
   let htmlRows = '';
   active.forEach(([name, v]) => {
     sumCourt += v.courtCoach; sumTip += v.tip; sumPark += v.parking; sumBall += v.ball; sumAll += v.total;
     htmlRows += `<tr class="split-row">
       <td><strong>${name}</strong> <span style="color:var(--muted);font-size:11px">(${v.sessions} buổi)</span>
-        <span class="${payments[name]?'paid':'unpaid'}" style="margin-left:6px">${payments[name]?'✓ Đã đóng':'⏳ Chưa'}</span>
+        <span class="${payments[name]?'paid':'unpaid'}" style="margin-left:8px">${payments[name]?'✓ Đã đóng':'⏳ Chưa'}</span>
       </td>
       <td class="num">${fmt(Math.round(v.courtCoach))}</td>
       <td class="num">${fmtOrDash(Math.round(v.tip))}</td>
       <td class="num">${fmtOrDash(Math.round(v.parking))}</td>
       <td class="num">${fmtOrDash(Math.round(v.ball))}</td>
-      <td class="num" style="color:var(--accent);font-weight:700;font-size:15px">${fmt(Math.round(v.total))}</td>
+      <td class="num" style="color:var(--accent);font-weight:900;font-size:16px">${fmt(Math.round(v.total))}</td>
     </tr>`;
   });
 
@@ -941,8 +949,57 @@ function renderSplit() {
       <td class="num">${fmt(Math.round(sumTip))}</td>
       <td class="num">${fmt(Math.round(sumPark))}</td>
       <td class="num">${fmt(Math.round(sumBall))}</td>
-      <td class="num" style="color:var(--accent2)">${fmt(Math.round(sumAll))}</td>
+      <td class="num" style="color:var(--accent);font-size:18px">${fmt(Math.round(sumAll))}</td>
     </tr>` : '';
+
+  // 3. Khôi phục Bảng Chi Tiết Theo Buổi
+  const container = document.getElementById('per-session-detail');
+  if (!sessions.length) {
+    if(container) container.innerHTML = '';
+  } else if(container) {
+    container.innerHTML = sessions.map(s => {
+      const n = s.players.length;
+      const base = (s.courtFee + s.coachFee) / n;
+      const tip = s.tip / n;
+      const parking = (s.parkTotal || 0) / n;
+
+      return `<div class="card" style="margin-bottom:16px; padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-family:'DM Mono',monospace;font-size:14px;color:var(--accent2);font-weight:700">${fmtDate(s.date)}</span>
+            <span style="color:var(--text);font-weight:800;font-family:'Nunito',sans-serif;font-size:15px">${s.day} — ${s.time}</span>
+            <span class="tag ${s.hasCoach?'tc':'tnc'}">${s.hasCoach?'Có thầy':'Không thầy'}</span>
+          </div>
+          <div style="font-family:'Nunito',sans-serif;color:var(--accent);font-weight:900;font-size:20px">${fmt(s.total)}</div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th style="font-size:11px">Người chơi</th>
+                <th class="num" style="font-size:11px">Sân+Thầy</th>
+                <th class="num" style="font-size:11px">Tip</th>
+                <th class="num" style="font-size:11px">Xe (chia)</th>
+                <th class="num" style="color:var(--accent);font-size:11px">Cộng</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${s.players.map(p => {
+                const pTotal = Math.round(base) + Math.round(tip) + Math.round(parking);
+                return `<tr>
+                  <td style="font-weight:700">${p}</td>
+                  <td class="num">${fmt(Math.round(base))}</td>
+                  <td class="num">${fmt(Math.round(tip))}</td>
+                  <td class="num">${parking ? fmt(Math.round(parking)) : '—'}</td>
+                  <td class="num" style="color:var(--accent);font-weight:800">${fmt(pTotal)}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -959,16 +1016,16 @@ function renderPayments() {
   if (!active.length) { el.innerHTML=`<div class="empty"><div class="ei">✅</div>Chưa có dữ liệu</div>`; return; }
 
   el.innerHTML = active.map(([name,v]) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="checkbox" ${payments[name]?'checked':''} onchange="togPay('${name}')" style="width:18px;height:18px;cursor:pointer">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px dashed var(--border)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <input type="checkbox" ${payments[name]?'checked':''} onchange="togPay('${name}')" style="width:22px;height:22px;cursor:pointer;accent-color:var(--accent);">
         <div>
-          <div style="font-weight:600">${name}</div>
-          <div style="font-size:11px;color:var(--muted)">${v.sessions} buổi${v.ball?' + tiền banh':''}</div>
+          <div style="font-weight:800;font-size:15px;font-family:'Nunito',sans-serif;">${name}</div>
+          <div style="font-size:12px;color:var(--muted);font-weight:600">${v.sessions} buổi${v.ball?' + tiền banh':''}</div>
         </div>
       </div>
       <div style="text-align:right">
-        <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:600">${fmt(Math.round(v.total))}</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:18px;color:var(--accent);font-weight:900">${fmt(Math.round(v.total))}</div>
         <div class="${payments[name]?'paid':'unpaid'}">${payments[name]?'✓ Đã đóng':'⏳ Chưa đóng'}</div>
       </div>
     </div>`).join('');
@@ -988,10 +1045,10 @@ function renderBankDisp() {
   const el   = document.getElementById('bank-disp');
   if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:10px 14px;font-size:13px">
-      🏦 <strong>${info.bank}</strong> &nbsp;|&nbsp;
-      <strong style="font-family:'DM Mono',monospace">${info.acc}</strong> &nbsp;|&nbsp;
-      <strong>${info.name}</strong></div>`;
+    el.innerHTML = `<div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px;font-size:14px;color:#1e3a8a;">
+      🏦 <strong style="font-weight:800">${info.bank}</strong> &nbsp;|&nbsp;
+      <strong style="font-family:'DM Mono',monospace;font-size:16px">${info.acc}</strong> &nbsp;|&nbsp;
+      <strong style="font-weight:800">${info.name}</strong></div>`;
     document.getElementById('bank-acc').value  = info.acc;
     document.getElementById('bank-name').value = info.name;
     document.getElementById('bank-bank').value = info.bank;
@@ -1026,12 +1083,12 @@ function renderHistory() {
       grand      += s.total;
     });
     tableHtml += `<tr class="split-row">
-      <td><strong>${fmtMonth(m)}</strong></td>
+      <td><strong style="font-family:'Nunito',sans-serif;font-size:14px;">${fmtMonth(m)}</strong></td>
       <td class="num">${sessions.length}</td>
       <td class="num">${fmt(courtCoach)}</td>
       <td class="num">${fmt(tipPark)}</td>
       <td class="num">${fmtOrDash(ballCost)}</td>
-      <td class="num" style="color:var(--accent);font-weight:700">${fmt(grand)}</td>
+      <td class="num" style="color:var(--accent);font-weight:900;font-size:15px">${fmt(grand)}</td>
       <td style="text-align:right">
         <button class="btn btn-s btn-sm" onclick="jumpToMonth('${m}')">Chi tiết ➔</button>
       </td>
@@ -1039,7 +1096,7 @@ function renderHistory() {
   });
   tbody.innerHTML = tableHtml;
 
-  // Chart data (ascending)
+  // Chart data
   months.forEach(m => {
     const d = state.months[m];
     let total = d.ballCost||0;
@@ -1054,13 +1111,24 @@ function renderChart(labels, data) {
   const ctx = document.getElementById('historyChart');
   if (!ctx) return;
   if (chartInst) { chartInst.destroy(); chartInst = null; }
-  Chart.defaults.color            = '#7d8590';
-  Chart.defaults.font.family      = "'DM Sans', sans-serif";
+  
+  // Tinh chỉnh màu Chart cho tươi sáng
+  Chart.defaults.color            = '#64748b';
+  Chart.defaults.font.family      = "'Nunito', sans-serif";
+  Chart.defaults.font.weight      = "700";
+  
   chartInst = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
-      datasets:[{ label:'Tổng chi phí', data, backgroundColor:'rgba(230,200,74,.35)', borderColor:'#e6c84a', borderWidth:1, borderRadius:5 }]
+      datasets:[{ 
+        label:'Tổng chi phí', 
+        data, 
+        backgroundColor:'rgba(16, 185, 129, 0.65)', 
+        borderColor:'#10b981', 
+        borderWidth:2, 
+        borderRadius:8 
+      }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -1069,7 +1137,7 @@ function renderChart(labels, data) {
         tooltip: { callbacks: { label: ctx => new Intl.NumberFormat('vi-VN').format(ctx.parsed.y)+' VNĐ' } }
       },
       scales: {
-        y: { beginAtZero:true, grid:{ color:'rgba(48,54,61,.5)' }, ticks:{ callback: v => (v/1000)+'k' } },
+        y: { beginAtZero:true, grid:{ color:'rgba(226, 232, 240, 0.8)' }, ticks:{ callback: v => (v/1000)+'k' } },
         x: { grid:{ display:false } }
       }
     }
