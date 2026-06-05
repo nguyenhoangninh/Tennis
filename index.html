@@ -1266,22 +1266,28 @@ function makeVietQR(info, memo) {
   return 'https://img.vietqr.io/image/' + bank + '-' + info.acc + '-compact2.png?addInfo=' + encodeURIComponent(memo||'Tennis') + '&accountName=' + encodeURIComponent(info.name||'');
 }
 
-function renderQRBox(wrapperId, info, label, color, borderColor) {
+function renderQRBox(wrapperId, info, label, color) {
   const wrap = document.getElementById(wrapperId);
-  if (!wrap || !info?.acc) { if(wrap) wrap.innerHTML=''; return; }
+  if (!wrap) return;
+  
+  if (!info || !info.acc) { 
+    wrap.innerHTML = `<div style="color: var(--muted); font-style: italic; font-weight:600;">Chưa cấu hình tài khoản</div>`; 
+    return; 
+  }
+  
   const qrSrc = makeVietQR(info, label);
   
-  // Thiết kế thẻ hiển thị ngang: Ảnh bên trái, Text bên phải
-  wrap.innerHTML = `<div style="display:flex; align-items:center; gap:14px; background:#fff; border:1.5px solid ${borderColor}; padding:10px; border-radius:12px;">
-    <img src="${qrSrc}" width="80" height="80" style="border-radius:8px; border:1px solid var(--border);"
-      onerror="this.outerHTML='<div style=\\'width:80px;height:80px;background:#f8fafc;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;border:1px solid var(--border)\\'>Lỗi QR</div>'"
-    >
-    <div style="flex:1; overflow:hidden;">
-      <div style="font-family:'DM Mono',monospace; font-size:16px; font-weight:800; color:var(--text); letter-spacing:0.5px;">${info.acc}</div>
-      <div style="font-size:14px; font-weight:800; color:${color}; margin-top:2px;">${info.bank}</div>
-      <div style="font-size:12px; font-weight:600; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${info.name}</div>
-    </div>
-  </div>`;
+  // Thiết kế QR Code bự ở trung tâm, thông tin nằm ngay dưới
+  wrap.innerHTML = `
+    <div style="text-align: center; width: 100%;">
+      <div style="background: #fff; padding: 14px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); display: inline-block; border: 1px solid var(--border); margin-bottom: 20px; transition: transform .2s; cursor:pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        <img src="${qrSrc}" style="width: 220px; height: 220px; object-fit: contain; border-radius: 12px;" 
+             onerror="this.outerHTML='<div style=\\'width:220px;height:220px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;\\'>Lỗi QR</div>'">
+      </div>
+      <div style="font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: 1px;">${info.acc}</div>
+      <div style="font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800; color: ${color}; margin-top: 6px;">${info.bank}</div>
+      <div style="font-size: 14px; font-weight: 600; color: var(--muted); margin-top: 4px;">${info.name}</div>
+    </div>`;
 }
 
 function renderBankDisp() {
@@ -1290,11 +1296,8 @@ function renderBankDisp() {
     document.getElementById('bank-acc').value  = info.acc;
     document.getElementById('bank-name').value = info.name;
     document.getElementById('bank-bank').value = info.bank;
-    renderQRBox('my-qr-wrap', info, 'Của Tôi', 'var(--accent)', '#a7f3d0');
-  } else {
-    const wrap = document.getElementById('my-qr-wrap');
-    if(wrap) wrap.innerHTML = '';
   }
+  renderQRBox('my-qr-wrap', info, 'Thanh toán Tennis', 'var(--accent)');
 }
 
 function renderCourtDisp() {
@@ -1303,11 +1306,8 @@ function renderCourtDisp() {
     document.getElementById('court-acc').value  = info.acc;
     document.getElementById('court-name').value = info.name;
     document.getElementById('court-bank').value = info.bank;
-    renderQRBox('court-qr-wrap', info, 'Chủ Sân', 'var(--accent2)', '#bfdbfe');
-  } else {
-    const wrap = document.getElementById('court-qr-wrap');
-    if(wrap) wrap.innerHTML = '';
   }
+  renderQRBox('court-qr-wrap', info, 'Thanh toán Tiền Sân', 'var(--accent2)');
 }
 
 // ═══════════════════════════════════════════════════
