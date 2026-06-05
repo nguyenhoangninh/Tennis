@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎾 Tennis Manager</title>
-<!-- Tích hợp Font chữ Cute và Trẻ trung (Nunito + DM Sans) -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Nunito:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,17 +11,17 @@
 <style>
 /* ── BẢNG MÀU TƯƠI SÁNG & TRẺ TRUNG ── */
 :root{
-  --bg: #f0fdf4; /* Nền xanh mint cực nhạt, rất fresh */
-  --surface: #ffffff; /* Thẻ trắng tinh khôi nổi bật */
-  --surface2: #f8fafc; /* Màu nền cho input, chip */
-  --border: #e2e8f0; /* Viền xám sáng gọn gàng */
-  --accent: #10b981; /* Xanh lá Tennis / Emerald tràn đầy năng lượng */
-  --accent-hover: #059669; /* Xanh lá đậm khi trỏ chuột */
-  --accent2: #3b82f6; /* Xanh dương da trời sáng */
-  --accent3: #f59e0b; /* Vàng cam đất nện tennis */
-  --text: #1e293b; /* Chữ xám đen sắc nét rõ ràng */
-  --muted: #64748b; /* Chữ chú thích xám nhạt */
-  --danger: #f43f5e; /* Đỏ hồng cute */
+  --bg: #f0fdf4; 
+  --surface: #ffffff; 
+  --surface2: #f8fafc; 
+  --border: #e2e8f0; 
+  --accent: #10b981; 
+  --accent-hover: #059669; 
+  --accent2: #3b82f6; 
+  --accent3: #f59e0b; 
+  --text: #1e293b; 
+  --muted: #64748b; 
+  --danger: #f43f5e; 
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;}
@@ -66,7 +65,6 @@ input[type=number]{font-family:'DM Mono',monospace;}
 .chip input{width:auto;padding:0;}
 .chip:has(input:checked){background:#ecfdf5;border-color:var(--accent);color:var(--accent);}
 
-/* Nút bấm Bo tròn Cute, Hiệu ứng Nảy */
 .btn{padding:8px 18px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.3px;cursor:pointer;border:none;transition:all .2s cubic-bezier(0.4, 0, 0.2, 1);white-space:nowrap;}
 .btn-p{background:var(--accent);color:#ffffff;box-shadow:0 4px 12px rgba(16,185,129,0.25);}
 .btn-p:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,185,129,0.35);}
@@ -88,8 +86,8 @@ tr:last-child td{border-bottom:none;}
 tr:hover td{background:#f8fafc;}
 .num{font-family:'DM Mono',monospace;text-align:right;}
 .tag{display:inline-block;padding:3px 10px;border-radius:14px;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;}
-.tc{background:#eff6ff;color:var(--accent2);border:1px solid #bfdbfe;} /* Xanh dương nhạt */
-.tnc{background:#ecfdf5;color:var(--accent);border:1px solid #a7f3d0;} /* Xanh lá nhạt */
+.tc{background:#eff6ff;color:var(--accent2);border:1px solid #bfdbfe;} 
+.tnc{background:#ecfdf5;color:var(--accent);border:1px solid #a7f3d0;} 
 .tp{background:#fffbeb;color:var(--accent3);font-size:11px;padding:3px 8px;border-radius:10px;margin:2px;font-weight:700;}
 
 /* ── SUMMARY CARDS ── */
@@ -169,7 +167,6 @@ tr:hover td{background:#f8fafc;}
   <div class="tab" onclick="sw('settings')">⚙️ Cài Đặt</div>
 </div>
 
-<!-- ═══════════ TAB: SESSIONS ═══════════ -->
 <div id="tab-sessions" class="panel active">
   <div class="sec">🎾 Thêm Buổi Tập</div>
   <div class="card">
@@ -215,7 +212,6 @@ tr:hover td{background:#f8fafc;}
   </div>
 </div>
 
-<!-- ═══════════ TAB: CALENDAR ═══════════ -->
 <div id="tab-calendar" class="panel">
   <div class="sec">📅 Lịch Tháng — <span id="cal-title" style="font-size:16px;color:var(--muted)"></span></div>
   <div class="card">
@@ -230,7 +226,6 @@ tr:hover td{background:#f8fafc;}
   </div>
 </div>
 
-<!-- ═══════════ TAB: SPLIT ═══════════ -->
 <div id="tab-split" class="panel">
   <div class="sgrid" id="sum-cards"></div>
 
@@ -263,12 +258,10 @@ tr:hover td{background:#f8fafc;}
     </table></div>
   </div>
 
-  <!-- PHẦN PHỤC HỒI LẠI: CHI TIẾT THEO TỪNG BUỔI TẬP -->
   <div class="sec mt">📊 Chi Tiết Theo Từng Buổi Tập</div>
   <div id="per-session-detail"></div>
 </div>
 
-<!-- ═══════════ TAB: PAYMENTS ═══════════ -->
 <div id="tab-payments" class="panel">
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
   <div class="card">
@@ -291,7 +284,6 @@ tr:hover td{background:#f8fafc;}
   </div>
 </div>
 
-<!-- ═══════════ TAB: HISTORY ═══════════ -->
 <div id="tab-history" class="panel">
   <div class="sec">📈 Biểu Đồ Chi Phí Theo Tháng</div>
   <div class="card" style="height:320px;padding:24px">
@@ -310,13 +302,12 @@ tr:hover td{background:#f8fafc;}
   </div>
 </div>
 
-<!-- ═══════════ TAB: SETTINGS ═══════════ -->
 <div id="tab-settings" class="panel">
   <div class="sec">📋 Master Data — Gói & Bảng Giá</div>
   <div class="card">
     <input type="hidden" id="md-edit-id">
     <div class="frow">
-      <div class="fg w"><label>Tên Ca / Gói</label><input type="text" id="md-name" placeholder="VD: Tối Cuối tuần (17h-22h)"></div>
+      <div class="fg w"><label>Tên Ca / Gói (VD: Tối T2-T6)</label><input type="text" id="md-name" placeholder="Tên gói hiển thị..."></div>
       <div class="fg n"><label>Giá Sân</label><input type="number" id="md-court" step="10000"></div>
       <div class="fg n"><label>Giá Thầy</label><input type="number" id="md-coach" step="10000"></div>
       <div class="fg n"><label>Tip</label><input type="number" id="md-tip" step="10000"></div>
@@ -347,12 +338,11 @@ tr:hover td{background:#f8fafc;}
       <button class="btn btn-s" onclick="exportData()">📤 Xuất JSON (Backup)</button>
       <button class="btn btn-s" onclick="document.getElementById('imp-file').click()">📥 Nhập JSON</button>
       <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(event)">
-      <button class="btn btn-s" onclick="forceSync()">🔄 Đồng bộ tải về máy</button>
+      <button class="btn btn-s" onclick="forceSync()">🔄 Kéo dữ liệu trên mạng về máy</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ EDIT MODAL ═══════════ -->
 <div id="edit-modal" class="moverlay" style="display:none" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mtitle">✏️ Chỉnh Sửa Buổi Tập</div>
@@ -360,7 +350,6 @@ tr:hover td{background:#f8fafc;}
     <input type="hidden" id="edit-id">
     <div class="frow">
       <div class="fg n"><label>Ngày</label><input type="date" id="edit-date" readonly style="opacity:.6; cursor:not-allowed;"></div>
-      <!-- BỎ READONLY CHO PHÉP SỬA "CA" -->
       <div class="fg n"><label>Ca tập (Giờ)</label><input type="text" id="edit-time" placeholder="VD: T7 (15h-16h)"></div>
       <div class="fg n"><label>Có thầy?</label>
         <select id="edit-coach"><option value="yes">✅ Có thầy</option><option value="no">❌ Không thầy</option></select>
@@ -384,7 +373,7 @@ tr:hover td{background:#f8fafc;}
 
 <script>
 // ═══════════════════════════════════════════════════
-// FIREBASE CONFIG (Giữ nguyên của anh)
+// FIREBASE CONFIG
 // ═══════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyD8g-xlQVX60xLqMzQNe7g-Ec2S1APdT2k",
@@ -422,6 +411,20 @@ let dpViewMonth= '';
 let chartInst  = null;
 let db         = null;
 
+// Hàm chống lỗi cấu trúc Array biến thành Object trên Firebase
+function sanitizeFirebaseState(cloudData) {
+  if (!cloudData) return cloudData;
+  if (cloudData.masterData) cloudData.masterData = Object.values(cloudData.masterData).filter(Boolean);
+  if (cloudData.members)    cloudData.members = Object.values(cloudData.members).filter(Boolean);
+  if (cloudData.months) {
+    Object.values(cloudData.months).forEach(m => {
+      if (m.sessions) m.sessions = Object.values(m.sessions).filter(Boolean);
+      if (m.ballPlayers) m.ballPlayers = Object.values(m.ballPlayers).filter(Boolean);
+    });
+  }
+  return cloudData;
+}
+
 // ═══════════════════════════════════════════════════
 // FIREBASE INIT
 // ═══════════════════════════════════════════════════
@@ -434,7 +437,7 @@ function initFirebase() {
     db.ref(FB_PATH).on('value', snapshot => {
       const cloud = snapshot.val();
       if (cloud && cloud.members) {
-        state = cloud;
+        state = sanitizeFirebaseState(cloud);
         ensureMonth(curMonth);
         render();
       }
@@ -472,7 +475,7 @@ function forceSync() {
   setSyncStatus('saving', '⏳ Đang đồng bộ...');
   db.ref(FB_PATH).once('value').then(snap => {
     const cloud = snap.val();
-    if (cloud && cloud.members) { state = cloud; render(); }
+    if (cloud && cloud.members) { state = sanitizeFirebaseState(cloud); render(); }
     setSyncStatus('ok', '☁ Đã đồng bộ');
   }).catch(() => setSyncStatus('err', '⚠ Lỗi'));
 }
@@ -494,6 +497,7 @@ function init() {
 }
 
 function ensureMonth(m) {
+  if (!state.months) state.months = {};
   if (!state.months[m]) state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[], bankInfo:{} };
 }
 function cd() { ensureMonth(curMonth); return state.months[curMonth]; }
@@ -556,7 +560,7 @@ function render() {
 function renderSettings() {
   const tbody = document.getElementById('md-body');
   if (!tbody) return;
-  if (!state.masterData.length) {
+  if (!state.masterData || !state.masterData.length) {
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="ei">📋</div>Chưa có gói nào</div></td></tr>`;
   } else {
     tbody.innerHTML = state.masterData.map(md => `
@@ -573,7 +577,7 @@ function renderSettings() {
   }
 
   const ml = document.getElementById('member-list');
-  if (ml) {
+  if (ml && state.members) {
     ml.innerHTML = state.members.map((m,i) => `
       <div style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:8px 14px;font-size:14px;font-weight:700">
         <div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>${m}
@@ -589,8 +593,11 @@ function saveMD() {
   const coach  = pn(document.getElementById('md-coach').value);
   const tip    = pn(document.getElementById('md-tip').value);
   if (!name) { alert('Nhập tên gói!'); return; }
+  
+  if (!state.masterData) state.masterData = [];
+  
   if (editId) {
-    const md = state.masterData.find(x => x.id === parseInt(editId));
+    const md = state.masterData.find(x => x && x.id === parseInt(editId));
     if (md) Object.assign(md, { name, court, coach, tip });
   } else {
     state.masterData.push({ id: Date.now(), name, court, coach, tip });
@@ -598,7 +605,7 @@ function saveMD() {
   save(); cancelMD(); renderSettings(); renderTemplateDropdown();
 }
 function editMD(id) {
-  const md = state.masterData.find(x => x.id === id);
+  const md = (state.masterData||[]).find(x => x && x.id === id);
   if (!md) return;
   document.getElementById('md-edit-id').value = id;
   document.getElementById('md-name').value    = md.name;
@@ -615,19 +622,20 @@ function cancelMD() {
 }
 function deleteMD(id) {
   if (!confirm('Xóa gói giá này?')) return;
-  state.masterData = state.masterData.filter(md => md.id !== id);
+  state.masterData = (state.masterData||[]).filter(md => md && md.id !== id);
   save(); renderSettings(); renderTemplateDropdown();
 }
 function renderTemplateDropdown() {
   const sel = document.getElementById('s-template');
   if (!sel) return;
-  sel.innerHTML = state.masterData.length
+  sel.innerHTML = (state.masterData && state.masterData.length)
     ? state.masterData.map(md => `<option value="${md.id}">${md.name} — Sân: ${fmt(md.court)} | Tip: ${fmt(md.tip)}</option>`).join('')
     : `<option value="">-- Chưa có gói nào (vào Cài Đặt để thêm) --</option>`;
 }
 
 function addMember() {
   const n = document.getElementById('new-member').value.trim();
+  if (!state.members) state.members = [];
   if (!n || state.members.includes(n)) { alert(n ? 'Tên đã tồn tại!' : 'Nhập tên!'); return; }
   state.members.push(n);
   document.getElementById('new-member').value = '';
@@ -689,7 +697,7 @@ function updLbl() {
 function renderPlayerCbs(containerId, checked=null) {
   const c = document.getElementById(containerId);
   if (!c) return;
-  c.innerHTML = state.members.map(m =>
+  c.innerHTML = (state.members||[]).map(m =>
     `<label class="chip"><input type="checkbox" value="${m}" ${checked&&checked.has(m)?'checked':''}> ${m}</label>`
   ).join('');
 }
@@ -698,54 +706,79 @@ function renderPlayerCbs(containerId, checked=null) {
 // SESSIONS
 // ═══════════════════════════════════════════════════
 function addSession() {
-  if (!selDates.size) { alert('Chọn ít nhất 1 ngày!'); return; }
-  const templateId = parseInt(document.getElementById('s-template').value);
-  if (!templateId)   { alert('Chọn gói ca tập!'); return; }
-  const tmpl       = state.masterData.find(t => t.id === templateId);
-  if (!tmpl)         { alert('Gói không hợp lệ!'); return; }
-  const hasCoach   = document.getElementById('s-coach').value === 'yes';
-  const parkCount  = pn(document.getElementById('s-parking-count').value);
-  const players    = [...document.querySelectorAll('#player-cbs input:checked')].map(c=>c.value);
-  if (!players.length) { alert('Chọn ít nhất 1 người chơi!'); return; }
+  try {
+    if (!selDates.size) { alert('Vui lòng chọn ít nhất 1 ngày tập trên lịch!'); return; }
+    
+    const templateId = parseInt(document.getElementById('s-template').value);
+    if (!templateId) { alert('Vui lòng chọn Gói Ca Tập!'); return; }
+    
+    const tmpl = (state.masterData||[]).find(t => t && t.id === templateId);
+    if (!tmpl) { alert('Lỗi: Gói Master Data không hợp lệ!'); return; }
+    
+    const hasCoach = document.getElementById('s-coach').value === 'yes';
+    const parkCount = pn(document.getElementById('s-parking-count').value);
+    const players = [...document.querySelectorAll('#player-cbs input:checked')].map(c=>c.value);
+    if (!players.length) { alert('Vui lòng chọn ít nhất 1 người chơi tham gia!'); return; }
 
-  const courtFee   = tmpl.court;
-  const coachFee   = hasCoach ? tmpl.coach : 0;
-  const tip        = hasCoach ? tmpl.tip   : 0;
-  const parkTotal  = parkCount * PARKING_FEE;
-  const total      = courtFee + coachFee + tip + parkTotal;
+    const courtFee   = tmpl.court || 0;
+    const coachFee   = hasCoach ? (tmpl.coach || 0) : 0;
+    
+    // FIX: Tiền Tip áp dụng bắt buộc dù có thầy hay không thầy (do người nhặt cầu)
+    const tip        = tmpl.tip || 0; 
+    
+    const parkTotal  = parkCount * PARKING_FEE;
+    const total      = courtFee + coachFee + tip + parkTotal;
 
-  [...selDates].sort().forEach(date => {
-    const mk = date.slice(0,7);
-    ensureMonth(mk);
-    state.months[mk].sessions.push({
-      id: Date.now() + Math.random(),
-      date, day: dayName(date), time: tmpl.name,
-      templateId, hasCoach,
-      courtFee, coachFee, tip,
-      parkCount, parkFeeEach: PARKING_FEE, parkTotal,
-      total, players
+    [...selDates].sort().forEach(date => {
+      const mk = date.slice(0,7);
+      ensureMonth(mk);
+      if (!state.months[mk].sessions) state.months[mk].sessions = [];
+      
+      state.months[mk].sessions.push({
+        id: Date.now() + Math.random(),
+        date: date, 
+        day: dayName(date), 
+        time: tmpl.name,
+        templateId: templateId, 
+        hasCoach: hasCoach,
+        courtFee: courtFee, 
+        coachFee: coachFee, 
+        tip: tip,
+        parkCount: parkCount, 
+        parkFeeEach: PARKING_FEE, 
+        parkTotal: parkTotal,
+        total: total, 
+        players: players
+      });
+      state.months[mk].sessions.sort((a,b) => a.date.localeCompare(b.date));
     });
-    state.months[mk].sessions.sort((a,b) => a.date.localeCompare(b.date));
-  });
 
-  save();
-  selDates.clear();
-  document.getElementById('s-parking-count').value = '0';
-  renderPlayerCbs('player-cbs');
-  renderDp();
-  renderSessionsTable();
-  renderSplit();
+    save();
+    selDates.clear();
+    document.getElementById('s-parking-count').value = '0';
+    renderPlayerCbs('player-cbs');
+    renderDp();
+    renderSessionsTable();
+    renderSplit();
+    
+    // Bật thông báo thêm thành công để User dễ nhận diện
+    alert("✅ Đã thêm buổi tập thành công!");
+
+  } catch(e) {
+    console.error(e);
+    alert("Lỗi hệ thống khi thêm buổi tập: " + e.message);
+  }
 }
 
 function deleteSession(id) {
   if (!confirm('Xóa buổi này?')) return;
-  cd().sessions = cd().sessions.filter(s => s.id !== id);
+  cd().sessions = (cd().sessions||[]).filter(s => s && s.id !== id);
   save(); renderSessionsTable(); renderSplit();
   if (document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
 }
 
 function renderSessionsTable() {
-  const sessions = cd().sessions;
+  const sessions = cd().sessions || [];
   const tbody    = document.getElementById('ses-body');
   if (!sessions.length) {
     tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="ei">🎾</div>Chưa có buổi nào tháng này</div></td></tr>`;
@@ -763,7 +796,7 @@ function renderSessionsTable() {
     <td class="num">${fmtOrDash(s.tip)}</td>
     <td class="num">${s.parkTotal ? `${s.parkCount}xe×5k` : '—'}</td>
     <td class="num" style="color:var(--accent);font-weight:800;font-size:15px">${fmt(s.total)}</td>
-    <td>${s.players.map(p=>`<span class="tp">${p}</span>`).join('')}</td>
+    <td>${(s.players||[]).map(p=>`<span class="tp">${p}</span>`).join('')}</td>
     <td style="display:flex;gap:6px;justify-content:flex-end">
       <button class="btn btn-w btn-sm" onclick="openEdit(${s.id})">✏️</button>
       <button class="btn btn-d btn-sm" onclick="deleteSession(${s.id})">✕</button>
@@ -775,7 +808,7 @@ function renderSessionsTable() {
 // EDIT MODAL (GHI NHẬN FIX CA TẬP)
 // ═══════════════════════════════════════════════════
 function openEdit(id) {
-  const s = cd().sessions.find(x => x.id===id);
+  const s = (cd().sessions||[]).find(x => x && x.id===id);
   if (!s) return;
   document.getElementById('edit-id').value       = id;
   document.getElementById('edit-date').value     = s.date;
@@ -785,7 +818,7 @@ function openEdit(id) {
   document.getElementById('edit-coachfee').value = s.coachFee || 0;
   document.getElementById('edit-tip').value      = s.tip || 0;
   document.getElementById('edit-pcount').value   = s.parkCount || 0;
-  renderPlayerCbs('edit-player-cbs', new Set(s.players));
+  renderPlayerCbs('edit-player-cbs', new Set(s.players||[]));
   document.getElementById('edit-modal').style.display = 'flex';
 }
 function closeModal(e) {
@@ -794,10 +827,9 @@ function closeModal(e) {
 }
 function saveEdit() {
   const id = parseFloat(document.getElementById('edit-id').value);
-  const s  = cd().sessions.find(x => x.id===id);
+  const s  = (cd().sessions||[]).find(x => x && x.id===id);
   if (!s) return;
   
-  // Đã cập nhật lấy giá trị Ca từ ô text
   s.time = document.getElementById('edit-time').value.trim(); 
   
   s.hasCoach  = document.getElementById('edit-coach').value === 'yes';
@@ -831,7 +863,10 @@ function renderCalendar() {
     ['CN','T2','T3','T4','T5','T6','T7'].map(d=>`<div class="chead">${d}</div>`).join('');
 
   const byDate = {};
-  (cd().sessions||[]).forEach(s => { (byDate[s.date] = byDate[s.date]||[]).push(s); });
+  (cd().sessions||[]).forEach(s => { 
+    if(!s) return;
+    (byDate[s.date] = byDate[s.date]||[]).push(s); 
+  });
 
   let html = '';
   for (let i=0; i<firstDay; i++) html += `<div class="cday om"></div>`;
@@ -855,7 +890,7 @@ function renderBallCost() {
   const bpEl = document.getElementById('ball-players');
   if (!bpEl) return;
   const checked = new Set(data.ballPlayers?.length ? data.ballPlayers : state.members);
-  bpEl.innerHTML = state.members.map(m =>
+  bpEl.innerHTML = (state.members||[]).map(m =>
     `<label class="chip"><input type="checkbox" value="${m}" ${checked.has(m)?'checked':''} onchange="saveBallCost()"> ${m}</label>`
   ).join('');
   updateBallPP();
@@ -878,15 +913,17 @@ function updateBallPP() {
 // SPLIT CALCULATION (THÊM BẢNG CHI TIẾT TỪNG BUỔI)
 // ═══════════════════════════════════════════════════
 function calcSplit() {
-  const sessions = cd().sessions;
+  const sessions = cd().sessions || [];
   const data     = cd();
   const mt = {};
-  state.members.forEach(m => mt[m] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 });
+  (state.members||[]).forEach(m => mt[m] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 });
 
   sessions.forEach(s => {
+    if(!s || !s.players) return;
     const n  = s.players.length;
-    const cc = (s.courtFee + s.coachFee) / n;
-    const tp = s.tip / n;
+    if(n === 0) return;
+    const cc = ((s.courtFee||0) + (s.coachFee||0)) / n;
+    const tp = (s.tip||0) / n;
     const pk = (s.parkTotal||0) / n;
     s.players.forEach(p => {
       if (!mt[p]) mt[p] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 };
@@ -912,8 +949,8 @@ function renderSplit() {
 
   const totals  = calcSplit();
   const active  = Object.entries(totals).filter(([,v]) => v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
-  const payments = cd().payments;
-  const sessions = cd().sessions;
+  const payments = cd().payments || {};
+  const sessions = cd().sessions || [];
 
   // 1. Thẻ Summary
   const sumTotal = active.reduce((s,[,v])=>s+v.total, 0);
@@ -958,9 +995,11 @@ function renderSplit() {
     if(container) container.innerHTML = '';
   } else if(container) {
     container.innerHTML = sessions.map(s => {
+      if(!s || !s.players) return '';
       const n = s.players.length;
-      const base = (s.courtFee + s.coachFee) / n;
-      const tip = s.tip / n;
+      if(n===0) return '';
+      const base = ((s.courtFee||0) + (s.coachFee||0)) / n;
+      const tip = (s.tip||0) / n;
       const parking = (s.parkTotal || 0) / n;
 
       return `<div class="card" style="margin-bottom:16px; padding:20px;">
@@ -1009,7 +1048,7 @@ function renderPayments() {
   if (!document.getElementById('tab-payments').classList.contains('active')) return;
   document.getElementById('pay-month-lbl').textContent = fmtMonth(curMonth);
   const totals   = calcSplit();
-  const payments = cd().payments;
+  const payments = cd().payments || {};
   const active   = Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
   const el       = document.getElementById('pay-list');
 
@@ -1078,9 +1117,10 @@ function renderHistory() {
     const ballCost    = data.ballCost  || 0;
     let courtCoach=0, tipPark=0, grand=ballCost;
     sessions.forEach(s => {
-      courtCoach += s.courtFee + s.coachFee;
-      tipPark    += s.tip + (s.parkTotal||0);
-      grand      += s.total;
+      if(!s) return;
+      courtCoach += (s.courtFee||0) + (s.coachFee||0);
+      tipPark    += (s.tip||0) + (s.parkTotal||0);
+      grand      += s.total || 0;
     });
     tableHtml += `<tr class="split-row">
       <td><strong style="font-family:'Nunito',sans-serif;font-size:14px;">${fmtMonth(m)}</strong></td>
@@ -1096,11 +1136,10 @@ function renderHistory() {
   });
   tbody.innerHTML = tableHtml;
 
-  // Chart data
   months.forEach(m => {
     const d = state.months[m];
     let total = d.ballCost||0;
-    (d.sessions||[]).forEach(s => total += s.total);
+    (d.sessions||[]).forEach(s => { if(s) total += s.total || 0 });
     chartLabels.push(fmtMonth(m).replace('Tháng ',''));
     chartData.push(total);
   });
@@ -1112,7 +1151,6 @@ function renderChart(labels, data) {
   if (!ctx) return;
   if (chartInst) { chartInst.destroy(); chartInst = null; }
   
-  // Tinh chỉnh màu Chart cho tươi sáng
   Chart.defaults.color            = '#64748b';
   Chart.defaults.font.family      = "'Nunito', sans-serif";
   Chart.defaults.font.weight      = "700";
@@ -1168,8 +1206,8 @@ function importData(event) {
     try {
       const imported = JSON.parse(e.target.result);
       if (imported.members && imported.months) {
-        state = imported;
-        if (!state.masterData?.length) state.masterData = DEFAULT_MASTER;
+        state = sanitizeFirebaseState(imported);
+        if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
         save(); render(); alert('Nhập dữ liệu thành công!');
       } else alert('File không hợp lệ!');
     } catch { alert('Lỗi đọc file!'); }
@@ -1178,9 +1216,6 @@ function importData(event) {
   event.target.value = '';
 }
 
-// ═══════════════════════════════════════════════════
-// START
-// ═══════════════════════════════════════════════════
 init();
 </script>
 </body>
