@@ -247,10 +247,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </table></div>
   </div>
 </div>
-<div class="section-title mt-16">📊 Chi Tiết Theo Buổi</div>
-  <div id="per-session-detail"></div>
-</div> <!-- Kết thúc thẻ tab-split -->
-  
+
 <!-- ═══════════ TAB: PAYMENTS ═══════════ -->
 <div id="tab-payments" class="panel">
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
@@ -902,90 +899,50 @@ function calcSplit() {
 }
 
 function renderSplit() {
- if (!document.getElementById('tab-split').classList.contains('active')) return;
+  if (!document.getElementById('tab-split').classList.contains('active')) return;
   renderBallCost();
-  const sessions = cd().sessions;
-  const totals = calcSplit();
+
+  const totals  = calcSplit();
+  const active  = Object.entries(totals).filter(([,v]) => v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
   const payments = cd().payments;
+  const sessions = cd().sessions;
 
-  const grandTotal = sessions.reduce((s,x)=>s+x.total,0) + (cd().ballCost||0);
-  const totalSessions = sessions.length;
-  const paidCount = Object.values(payments).filter(v=>v).length;
-  const active = Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0);
+  // Summary cards
+  const sumTotal = active.reduce((s,[,v])=>s+v.total, 0);
+  document.getElementById('sum-cards').innerHTML = `
+    <div class="scard"><div class="slbl">Tổng chi phí</div><div class="sval">${fmt(sumTotal)}</div><div class="ssub">${fmtMonth(curMonth)}</div></div>
+    <div class="scard"><div class="slbl">Số buổi</div><div class="sval">${sessions.length}</div><div class="ssub">buổi tập</div></div>
+    <div class="scard"><div class="slbl">Đã thanh toán</div><div class="sval" style="color:var(--accent2)">${Object.values(payments).filter(v=>v).length}/${active.length}</div><div class="ssub">người</div></div>`;
 
-  // 1. Cập nhật các thẻ thống kê tổng quan
-  document.getElementById('summary-cards').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Tổng chi phí</div><div class="stat-value">${fmt(grandTotal)}</div><div class="stat-sub">${fmtMonth(currentMonth)}</div></div>
-    <div class="stat-card"><div class="stat-label">Số buổi</div><div class="stat-value">${totalSessions}</div><div class="stat-sub">buổi tập</div></div>
-    <div class="stat-card"><div class="stat-label">Số người tham gia</div><div class="stat-value">${active.length}</div><div class="stat-sub">trong tháng</div></div>
-    <div class="stat-card"><div class="stat-label">Đã thanh toán</div><div class="stat-value" style="color:var(--accent2)">${paidCount}/${active.length}</div><div class="stat-sub">người</div></div>
-  `;
+  // Matrix rows
+  let sumCourt=0, sumTip=0, sumPark=0, sumBall=0, sumAll=0;
+  let htmlRows = '';
+  active.forEach(([name, v]) => {
+    sumCourt += v.courtCoach; sumTip += v.tip; sumPark += v.parking; sumBall += v.ball; sumAll += v.total;
+    htmlRows += `<tr class="split-row">
+      <td><strong>${name}</strong> <span style="color:var(--muted);font-size:11px">(${v.sessions} buổi)</span>
+        <span class="${payments[name]?'paid':'unpaid'}" style="margin-left:6px">${payments[name]?'✓ Đã đóng':'⏳ Chưa'}</span>
+      </td>
+      <td class="num">${fmt(Math.round(v.courtCoach))}</td>
+      <td class="num">${fmtOrDash(Math.round(v.tip))}</td>
+      <td class="num">${fmtOrDash(Math.round(v.parking))}</td>
+      <td class="num">${fmtOrDash(Math.round(v.ball))}</td>
+      <td class="num" style="color:var(--accent);font-weight:700;font-size:15px">${fmt(Math.round(v.total))}</td>
+    </tr>`;
+  });
 
-  // 2. Cập nhật Bảng ma trận chi phí
-  const tbody = document.getElementById('split-body');
-  if (!active.length) {
-    tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">💸</div>Chưa có dữ liệu</div></td></tr>`;
-  } else {
-    tbody.innerHTML = active.sort((a,b)=>b[1].total-a[1].total).map(([name,v])=>`
-      <tr class="split-row-highlight">
-        <td><strong>${name}</strong> ${payments[name]?'<span class="paid-badge">✓ Đã đóng</span>':'<span class="unpaid-badge">⏳ Chưa đóng</span>'}</td>
-        <td class="num">${v.sessions}</td>
-        <td class="num">${fmt(Math.round(v.courtCoach+v.tip))}</td>
-        <td class="num">${v.parking?fmt(Math.round(v.parking)):'—'}</td>
-        <td class="num">${v.ball?fmt(Math.round(v.ball)):'—'}</td>
-        <td class="num" style="color:var(--accent);font-weight:700;font-size:15px">${fmt(Math.round(v.total))}</td>
-      </tr>`).join('');
-  }
+  if (!active.length) htmlRows = `<tr><td colspan="6"><div class="empty"><div class="ei">💸</div>Chưa có dữ liệu</div></td></tr>`;
 
-  // 3. Cập nhật phần CHI TIẾT THEO TỪNG BUỔI
-  const container = document.getElementById('per-session-detail');
-  if (!sessions.length) { 
-    container.innerHTML=''; 
-    return; 
-  }
-  
-  container.innerHTML = sessions.map(s => {
-    const n = s.players.length;
-    const base = (s.courtFee + s.coachFee) / n;
-    const tip = s.tip / n;
-    const parking = (s.parkingTotal || 0) / n;
-    
-    return `<div class="card" style="margin-bottom:12px">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-        <div>
-          <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent)">${fmtDate(s.date)}</span>
-          <span style="color:var(--text-muted);margin:0 8px">${s.day} ${s.time}</span>
-          <span class="tag ${s.hasCoach?'tag-coach':'tag-no-coach'}">${s.hasCoach?'Có thầy':'Không thầy'}</span>
-        </div>
-        <div style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;font-size:16px">${fmt(s.total)}</div>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Người chơi</th>
-              <th class="num">Sân+Thầy</th>
-              <th class="num">Tip</th>
-              <th class="num">Xe (chia đều)</th>
-              <th class="num">Cộng</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${s.players.map(p => {
-              const pTotal = Math.round(base) + Math.round(tip) + Math.round(parking);
-              return `<tr>
-                <td>${p}</td>
-                <td class="num">${fmt(Math.round(base))}</td>
-                <td class="num">${fmt(Math.round(tip))}</td>
-                <td class="num">${parking ? fmt(Math.round(parking)) : '—'}</td>
-                <td class="num" style="color:var(--accent);font-weight:600">${fmt(pTotal)}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>`;
-  }).join('');
+  document.getElementById('split-body').innerHTML   = htmlRows;
+  document.getElementById('split-footer').innerHTML = active.length ? `
+    <tr>
+      <td>📊 TỔNG CHI PHÍ</td>
+      <td class="num">${fmt(Math.round(sumCourt))}</td>
+      <td class="num">${fmt(Math.round(sumTip))}</td>
+      <td class="num">${fmt(Math.round(sumPark))}</td>
+      <td class="num">${fmt(Math.round(sumBall))}</td>
+      <td class="num" style="color:var(--accent2)">${fmt(Math.round(sumAll))}</td>
+    </tr>` : '';
 }
 
 // ═══════════════════════════════════════════════════
