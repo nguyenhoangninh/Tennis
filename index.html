@@ -4,229 +4,129 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎾 Tennis Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 :root{
-  --bg:#f0f4ff;
-  --surface:#ffffff;
-  --surface2:#f7f9ff;
-  --border:#e2e8f7;
-  --accent:#7c6ee6;       /* violet */
-  --accent-lt:#ede9ff;
-  --accent2:#34c97a;      /* green */
-  --accent2-lt:#e6faf1;
-  --accent3:#3b9eff;      /* blue */
-  --accent3-lt:#e8f3ff;
-  --accent4:#ff7eb3;      /* pink */
-  --accent4-lt:#fff0f7;
-  --yellow:#f5c842;
-  --yellow-lt:#fffae8;
-  --text:#2d3260;
-  --muted:#8b93bc;
-  --danger:#ff5a6e;
-  --danger-lt:#fff0f2;
-  --shadow:0 2px 12px rgba(124,110,230,.10);
-  --shadow-md:0 4px 20px rgba(124,110,230,.14);
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;
+  --accent:#e6c84a;--accent2:#4ade80;--accent3:#60a5fa;
+  --text:#e6edf3;--muted:#7d8590;--danger:#f85149;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;font-size:14px;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:14px;}
 
-/* ─── HEADER ─── */
-header{
-  background:linear-gradient(135deg,#7c6ee6 0%,#a78bfa 50%,#c084fc 100%);
-  padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:62px;
-  position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(124,110,230,.3);
-}
-.logo{font-family:'Nunito',sans-serif;font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:-.3px;}
+/* ── LAYOUT ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Instrument Serif',serif;font-size:22px;color:var(--accent);display:flex;align-items:center;gap:8px;}
 .month-nav{display:flex;align-items:center;gap:10px;}
-.month-nav button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;transition:.15s;font-weight:700;}
-.month-nav button:hover{background:rgba(255,255,255,.35);}
-#curMonthLbl{font-family:'DM Mono',monospace;font-size:14px;color:#fff;font-weight:600;min-width:110px;text-align:center;}
-#sync-status{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:700;margin-left:8px;}
-#sync-status.ok{background:rgba(52,201,122,.3);color:#fff;}
-#sync-status.saving{background:rgba(245,200,66,.3);color:#fff;}
-#sync-status.err{background:rgba(255,90,110,.3);color:#fff;}
+.month-nav button{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;transition:.15s;}
+.month-nav button:hover{border-color:var(--accent);color:var(--accent);}
+#curMonthLbl{font-family:'DM Mono',monospace;font-size:15px;color:var(--accent);min-width:110px;text-align:center;}
+#sync-status{font-size:11px;padding:3px 8px;border-radius:12px;font-weight:600;margin-left:8px;}
+#sync-status.ok{background:rgba(74,222,128,.15);color:var(--accent2);}
+#sync-status.saving{background:rgba(230,200,74,.15);color:var(--accent);}
+#sync-status.err{background:rgba(248,81,73,.15);color:var(--danger);}
 
-/* ─── TABS ─── */
-.tabs{display:flex;border-bottom:2px solid var(--border);background:var(--surface);padding:0 20px;gap:2px;overflow-x:auto;box-shadow:var(--shadow);}
-.tab{padding:11px 15px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;font-weight:700;white-space:nowrap;}
-.tab:hover{color:var(--accent);}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 20px;gap:2px;overflow-x:auto;}
+.tab{padding:10px 14px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;transition:.15s;font-weight:500;white-space:nowrap;}
+.tab:hover{color:var(--text);}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* ─── PANELS ─── */
 .panel{display:none;padding:22px;max-width:1100px;margin:0 auto;}
 .panel.active{display:block;}
 
-/* ─── CARDS & SECTIONS ─── */
-.sec{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-.card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
-.card-pink{border-color:#ffd6e8;background:linear-gradient(135deg,#fff8fc 0%,#fff 100%);}
-.card-violet{border-color:#ddd6fe;background:linear-gradient(135deg,#faf8ff 0%,#fff 100%);}
-.card-green{border-color:#bbf7d0;background:linear-gradient(135deg,#f0fdf6 0%,#fff 100%);}
-.card-blue{border-color:#bfdbfe;background:linear-gradient(135deg,#eff8ff 0%,#fff 100%);}
+/* ── COMMON COMPONENTS ── */
+.sec{font-family:'Instrument Serif',serif;font-size:19px;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
 
-/* ─── FORMS ─── */
 .frow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
 .fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:120px;}
 .fg.n{flex:0 0 140px;min-width:120px;}
 .fg.w{flex:2;}
-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
-input,select,textarea{
-  background:var(--surface2);border:1.5px solid var(--border);color:var(--text);
-  padding:8px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;
-  outline:none;transition:.15s;width:100%;font-weight:600;
-}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-lt);}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+input,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 11px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:.15s;width:100%;}
+input:focus,select:focus{border-color:var(--accent3);}
 input[type=number]{font-family:'DM Mono',monospace;}
 
-/* ─── CHIPS ─── */
 .chips{display:flex;flex-wrap:wrap;gap:7px;}
-.chip{display:flex;align-items:center;gap:5px;padding:5px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;cursor:pointer;transition:.15s;font-size:13px;font-weight:600;}
+.chip{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:.15s;font-size:13px;}
 .chip input{width:auto;padding:0;}
-.chip:has(input:checked){background:var(--accent-lt);border-color:var(--accent);color:var(--accent);}
+.chip:has(input:checked){background:rgba(230,200,74,.15);border-color:var(--accent);color:var(--accent);}
 
-/* ─── BUTTONS ─── */
-.btn{padding:8px 18px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:.15s;white-space:nowrap;}
-.btn-p{background:linear-gradient(135deg,#7c6ee6,#a78bfa);color:#fff;box-shadow:0 2px 8px rgba(124,110,230,.3);}
-.btn-p:hover{box-shadow:0 4px 14px rgba(124,110,230,.4);transform:translateY(-1px);}
-.btn-s{background:var(--surface2);color:var(--text);border:1.5px solid var(--border);}
-.btn-s:hover{border-color:var(--accent);color:var(--accent);}
-.btn-green{background:linear-gradient(135deg,#34c97a,#22d3a0);color:#fff;box-shadow:0 2px 8px rgba(52,201,122,.3);}
-.btn-green:hover{box-shadow:0 4px 14px rgba(52,201,122,.4);transform:translateY(-1px);}
-.btn-pink{background:linear-gradient(135deg,#ff7eb3,#ff4d8d);color:#fff;box-shadow:0 2px 8px rgba(255,126,179,.3);}
-.btn-pink:hover{box-shadow:0 4px 14px rgba(255,126,179,.4);transform:translateY(-1px);}
-.btn-d{background:transparent;color:var(--danger);border:1.5px solid var(--danger);font-size:12px;padding:3px 9px;border-radius:8px;}
-.btn-d:hover{background:var(--danger-lt);}
-.btn-w{background:transparent;color:var(--accent);border:1.5px solid var(--accent);font-size:12px;padding:3px 9px;border-radius:8px;}
-.btn-w:hover{background:var(--accent-lt);}
-.btn-sm{padding:5px 12px;font-size:12px;}
+.btn{padding:7px 16px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;white-space:nowrap;}
+.btn-p{background:var(--accent);color:#0d1117;}.btn-p:hover{background:#f0d55a;}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-s:hover{border-color:var(--accent3);}
+.btn-d{background:transparent;color:var(--danger);border:1px solid var(--danger);font-size:12px;padding:3px 9px;}.btn-d:hover{background:rgba(248,81,73,.15);}
+.btn-w{background:transparent;color:var(--accent);border:1px solid var(--accent);font-size:12px;padding:3px 9px;}.btn-w:hover{background:rgba(230,200,74,.1);}
+.btn-sm{padding:4px 11px;font-size:12px;}
 
-/* ─── TABLE ─── */
+/* ── TABLE ── */
 .tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
-th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;border-bottom:2px solid var(--border);font-weight:700;background:var(--surface2);}
-td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;font-weight:600;}
-tfoot td{border-top:2px solid var(--accent);border-bottom:none;font-weight:800;color:var(--accent);background:var(--accent-lt);}
+th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:9px 11px;border-bottom:1px solid var(--border);font-weight:600;}
+td{padding:9px 11px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle;}
+tfoot td{border-top:2px solid var(--border);border-bottom:none;font-weight:700;color:var(--accent);background:var(--surface2);}
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--surface2);}
+tr:hover td{background:rgba(255,255,255,.02);}
 .num{font-family:'DM Mono',monospace;text-align:right;}
+.tag{display:inline-block;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:600;}
+.tc{background:rgba(96,165,250,.2);color:var(--accent3);}
+.tnc{background:rgba(74,222,128,.2);color:var(--accent2);}
+.tp{background:rgba(230,200,74,.1);color:var(--accent);font-size:11px;padding:2px 5px;border-radius:10px;margin:1px;}
 
-/* ─── TAGS ─── */
-.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
-.tc{background:var(--accent3-lt);color:var(--accent3);}
-.tnc{background:var(--accent2-lt);color:var(--accent2);}
-.tp{background:var(--accent-lt);color:var(--accent);font-size:11px;padding:2px 7px;border-radius:10px;margin:1px;font-weight:700;}
+/* ── SUMMARY CARDS ── */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:18px;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+.slbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.sval{font-family:'DM Mono',monospace;font-size:21px;color:var(--accent);font-weight:500;}
+.ssub{font-size:11px;color:var(--muted);margin-top:3px;}
 
-/* ─── STAT CARDS ─── */
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:18px;}
-.scard{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);}
-.scard.violet{border-color:#ddd6fe;background:linear-gradient(135deg,#faf8ff,#fff);}
-.scard.green{border-color:#bbf7d0;background:linear-gradient(135deg,#f0fdf6,#fff);}
-.scard.pink{border-color:#ffd6e8;background:linear-gradient(135deg,#fff8fc,#fff);}
-.scard.blue{border-color:#bfdbfe;background:linear-gradient(135deg,#eff8ff,#fff);}
-.slbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:700;}
-.sval{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;}
-.ssub{font-size:11px;color:var(--muted);margin-top:3px;font-weight:600;}
-
-/* ─── STATUS BADGES ─── */
-.paid{color:var(--accent2);font-size:12px;font-weight:700;}
-.unpaid{color:var(--danger);font-size:12px;font-weight:700;}
-
-/* ─── MISC ─── */
-.split-row td{background:rgba(124,110,230,.02);}
-.mbadge{display:inline-block;padding:5px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin:0 6px 6px 0;cursor:pointer;transition:.15s;font-weight:600;}
-.mbadge:hover,.mbadge.cv{border-color:var(--accent);background:var(--accent-lt);}
+/* ── MISC ── */
+.alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;border-left:3px solid;}
+.alert-info{background:rgba(96,165,250,.08);border-color:var(--accent3);color:var(--accent3);}
+.paid{color:var(--accent2);font-size:12px;font-weight:600;}
+.unpaid{color:var(--danger);font-size:12px;font-weight:600;}
+.split-row td{background:rgba(230,200,74,.03);}
+.mbadge{display:inline-block;padding:4px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin:0 6px 6px 0;cursor:pointer;transition:.15s;}
+.mbadge:hover,.mbadge.cv{border-color:var(--accent);background:rgba(230,200,74,.15);}
 .empty{text-align:center;padding:36px;color:var(--muted);font-size:13px;}
 .ei{font-size:34px;margin-bottom:7px;}
 .mt{margin-top:14px;}
-.alert-info{background:var(--accent3-lt);border:1.5px solid #bfdbfe;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px;color:var(--accent3);font-weight:600;}
 
-/* ─── CALENDAR ─── */
-.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.chead{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:5px 0;text-transform:uppercase;}
-.cday{min-height:70px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:5px;}
-.cday.om{opacity:.35;}
-.cday.hs{border-color:#c4b5fd;background:var(--accent-lt);}
-.cday.td{border-color:var(--accent3);background:var(--accent3-lt);}
-.cdnum{font-size:12px;font-weight:700;margin-bottom:3px;color:var(--muted);}
+/* ── CALENDAR ── */
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.chead{text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:5px 0;text-transform:uppercase;}
+.cday{min-height:70px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px;}
+.cday.om{opacity:.3;}
+.cday.hs{border-color:rgba(230,200,74,.4);background:rgba(230,200,74,.04);}
+.cday.td{border-color:var(--accent3);}
+.cdnum{font-size:12px;font-weight:600;margin-bottom:3px;color:var(--muted);}
 .cday.hs .cdnum{color:var(--accent);}
-.cpill{font-size:10px;background:var(--accent-lt);color:var(--accent);border-radius:4px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;}
-.cpill.nc{background:var(--accent2-lt);color:var(--accent2);}
+.cpill{font-size:10px;background:rgba(230,200,74,.2);color:var(--accent);border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cpill.nc{background:rgba(74,222,128,.15);color:var(--accent2);}
 
-/* ─── DATE PICKER ─── */
+/* ── DATE PICKER ── */
 .dpgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:7px;}
-.dpd{text-align:center;padding:8px 3px;border-radius:8px;cursor:pointer;font-size:13px;border:1.5px solid transparent;background:var(--surface2);transition:.15s;font-weight:600;}
-.dpd:hover{border-color:var(--accent);color:var(--accent);}
-.dpd.sel{background:var(--accent-lt);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.dpd{text-align:center;padding:7px 3px;border-radius:5px;cursor:pointer;font-size:13px;border:1px solid transparent;background:var(--surface2);transition:.15s;}
+.dpd:hover{border-color:var(--accent3);}
+.dpd.sel{background:rgba(230,200,74,.2);border-color:var(--accent);color:var(--accent);font-weight:600;}
 .dpd.om{opacity:.3;pointer-events:none;}
-.dph{text-align:center;font-size:11px;color:var(--muted);font-weight:700;padding:3px 0;}
+.dph{text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:3px 0;}
 
-/* ─── MODAL ─── */
-.moverlay{position:fixed;inset:0;background:rgba(45,50,96,.4);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
-.modal{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:660px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-md);}
-.mtitle{font-size:18px;font-weight:800;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+/* ── MODAL ── */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;}
+.mtitle{font-family:'Instrument Serif',serif;font-size:19px;color:var(--accent);margin-bottom:16px;}
 .mact{display:flex;gap:9px;margin-top:16px;justify-content:flex-end;}
-
-/* ─── PER-SESSION CARDS ─── */
-.ses-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);}
-.ses-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,var(--accent-lt),#fff);border-bottom:1.5px solid var(--border);flex-wrap:wrap;gap:8px;}
-.ses-card-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.ses-total{font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:800;white-space:nowrap;}
-.ses-ptotal{color:var(--accent);font-weight:800;}
-
-/* ─── PAYMENT SUMMARY CARDS ─── */
-.pay-person-card{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);
-  background:var(--surface);margin-bottom:10px;box-shadow:var(--shadow);
-  transition:.15s;
-}
-.pay-person-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md);}
-.pay-person-card.is-paid{background:var(--accent2-lt);border-color:#86efac;}
-
-/* ─── QR CODE AREA ─── */
-.qr-box{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;}
-.qr-box canvas,.qr-box img{border-radius:8px;}
-
-/* ─── UPLOAD AREA ─── */
-.upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:var(--surface2);}
-.upload-area:hover{border-color:var(--accent);background:var(--accent-lt);}
-.upload-area input{display:none;}
-.receipt-thumb{position:relative;display:inline-block;margin:5px;}
-.receipt-thumb img{width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--border);cursor:pointer;}
-.receipt-thumb .del-btn{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
-
-/* ─── PDF SUMMARY ─── */
-#pdf-preview{background:#fff;border-radius:14px;padding:24px;border:1.5px solid var(--border);box-shadow:var(--shadow-md);}
-.pdf-header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);}
-.pdf-header h1{font-size:22px;font-weight:800;color:var(--accent);}
-.pdf-header p{color:var(--muted);font-size:13px;margin-top:4px;font-weight:600;}
-.pdf-section{margin-bottom:18px;}
-.pdf-section h3{font-size:14px;font-weight:800;color:var(--accent);margin-bottom:10px;padding:6px 12px;background:var(--accent-lt);border-radius:8px;}
-.pdf-person-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;background:var(--surface2);}
-.pdf-person-name{font-weight:700;font-size:15px;}
-.pdf-person-amount{font-family:'DM Mono',monospace;font-size:18px;font-weight:800;color:var(--accent);}
-.pdf-qr-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
-.pdf-qr-item{text-align:center;}
-.pdf-qr-label{font-size:12px;color:var(--muted);font-weight:700;margin-top:6px;}
-
-@media print{
-  body *{visibility:hidden;}
-  #pdf-preview,#pdf-preview *{visibility:visible;}
-  #pdf-preview{position:fixed;inset:0;width:100%;border:none;border-radius:0;box-shadow:none;padding:20px;}
-}
 
 @media(max-width:600px){
   .panel{padding:12px;}
-  header{padding:0 14px;}
+  header{padding:0 12px;}
   .cday{min-height:50px;}
   .cpill{display:none;}
   .fg.n{flex:0 0 120px;min-width:110px;}
-  .ses-card-hdr{flex-direction:column;align-items:flex-start;}
 }
 </style>
 </head>
@@ -234,7 +134,7 @@ tr:hover td{background:var(--surface2);}
 
 <header>
   <div class="logo">🎾 Tennis Manager</div>
-  <div style="display:flex;align-items:center;gap:6px">
+  <div style="display:flex;align-items:center;gap:8px">
     <span id="sync-status" class="ok">☁ Đã lưu</span>
     <div class="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
@@ -249,45 +149,57 @@ tr:hover td{background:var(--surface2);}
   <div class="tab" onclick="sw('calendar')">📅 Lịch Tháng</div>
   <div class="tab" onclick="sw('split')">💰 Chia Tiền</div>
   <div class="tab" onclick="sw('payments')">✅ Thanh Toán</div>
-  <div class="tab" onclick="sw('summary')">📄 Tổng Hợp & PDF</div>
   <div class="tab" onclick="sw('history')">🗂 Lịch Sử</div>
   <div class="tab" onclick="sw('settings')">⚙️ Cài Đặt</div>
 </div>
 
-<!-- ═══ TAB: SESSIONS ═══ -->
+<!-- ═══════════ TAB: SESSIONS ═══════════ -->
 <div id="tab-sessions" class="panel active">
   <div class="sec">🎾 Thêm Buổi Tập</div>
-  <div class="card card-violet">
-    <div class="alert-info">💡 Chọn gói ca từ Master Data → giá tự điền. Phí xe <strong>5.000đ/chiếc</strong>, chia đều người chơi.</div>
+  <div class="card">
+    <div class="alert alert-info" style="margin-top:0">Chọn gói ca tập từ Master Data → hệ thống tự điền giá. Phí xe mặc định <strong>5.000đ/chiếc</strong>, chia đều người chơi.</div>
     <div class="frow">
       <div class="fg w"><label>Chọn gói ca tập</label><select id="s-template"></select></div>
       <div class="fg n"><label>Có thầy?</label>
-        <select id="s-coach"><option value="yes">✅ Có thầy</option><option value="no">❌ Không thầy</option></select>
+        <select id="s-coach">
+          <option value="yes">✅ Có thầy</option>
+          <option value="no">❌ Không thầy</option>
+        </select>
       </div>
-      <div class="fg n"><label>Số xe gửi</label><input type="number" id="s-parking-count" value="0" min="0" max="20"></div>
+      <div class="fg n"><label>Số xe gửi</label>
+        <input type="number" id="s-parking-count" value="0" min="0" max="20">
+      </div>
     </div>
     <div class="frow">
-      <div class="fg w"><label>Người chơi buổi này</label><div class="chips" id="player-cbs"></div></div>
+      <div class="fg w"><label>Người chơi buổi này</label>
+        <div class="chips" id="player-cbs"></div>
+      </div>
     </div>
-    <div style="margin-top:10px">
-      <label style="display:block;margin-bottom:7px">Chọn ngày tập (có thể chọn nhiều)</label>
+    <div style="margin-top:8px">
+      <label style="display:block;margin-bottom:7px">Chọn ngày tập (có thể chọn nhiều ngày)</label>
       <div id="dp-wrap"></div>
     </div>
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-p" onclick="addSession()">+ Thêm Buổi Tập</button>
-      <span id="sel-dates-lbl" style="font-size:12px;color:var(--muted);font-weight:600">Chưa chọn ngày nào</span>
+      <span id="sel-dates-lbl" style="font-size:12px;color:var(--muted)">Chưa chọn ngày nào</span>
     </div>
   </div>
-  <div class="sec mt">📋 Danh Sách — <span id="ses-month-title" style="font-size:15px;color:var(--muted)"></span></div>
+
+  <div class="sec mt">📋 Danh Sách Buổi — <span id="ses-month-title" style="font-size:15px;color:var(--muted)"></span></div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
-      <thead><tr><th>Ngày</th><th>Ca Tập</th><th>Thầy</th><th class="num">Sân</th><th class="num">Thầy</th><th class="num">Tip</th><th class="num">Xe</th><th class="num">Tổng</th><th>Người chơi</th><th></th></tr></thead>
+      <thead><tr>
+        <th>Ngày</th><th>Ca Tập</th><th>Thầy</th>
+        <th class="num">Sân</th><th class="num">Thầy</th><th class="num">Tip</th>
+        <th class="num">Xe</th><th class="num">Tổng</th>
+        <th>Người chơi</th><th></th>
+      </tr></thead>
       <tbody id="ses-body"></tbody>
     </table></div>
   </div>
 </div>
 
-<!-- ═══ TAB: CALENDAR ═══ -->
+<!-- ═══════════ TAB: CALENDAR ═══════════ -->
 <div id="tab-calendar" class="panel">
   <div class="sec">📅 Lịch Tháng — <span id="cal-title" style="font-size:15px;color:var(--muted)"></span></div>
   <div class="card">
@@ -295,118 +207,91 @@ tr:hover td{background:var(--surface2);}
     <div style="height:6px"></div>
     <div class="cgrid" id="cal-body"></div>
   </div>
-  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-weight:700">
-    <span>🔵 Hôm nay</span><span style="color:var(--accent)">🟣 Có thầy</span><span style="color:var(--accent2)">🟢 Không thầy</span>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)">
+    <span>🔵 Hôm nay</span>
+    <span style="color:var(--accent)">🟡 Có thầy</span>
+    <span style="color:var(--accent2)">🟢 Không thầy</span>
   </div>
 </div>
 
-<!-- ═══ TAB: SPLIT ═══ -->
+<!-- ═══════════ TAB: SPLIT ═══════════ -->
 <div id="tab-split" class="panel">
   <div class="sgrid" id="sum-cards"></div>
+
   <div class="sec">🎾 Tiền Banh Tháng Này</div>
-  <div class="card card-green">
+  <div class="card">
     <div class="frow" style="align-items:flex-end">
-      <div class="fg n"><label>Tổng tiền banh (VND)</label><input type="number" id="ball-cost" placeholder="0" step="10000" oninput="saveBallCost()"></div>
-      <div class="fg w"><label>Chia cho</label><div class="chips" id="ball-players"></div></div>
+      <div class="fg n"><label>Tổng tiền banh (VND)</label>
+        <input type="number" id="ball-cost" placeholder="0" step="10000" oninput="saveBallCost()">
+      </div>
+      <div class="fg w"><label>Chia cho</label>
+        <div class="chips" id="ball-players"></div>
+      </div>
     </div>
-    <div id="ball-pp" style="font-size:12px;color:var(--accent2);margin-top:4px;font-weight:700"></div>
+    <div id="ball-pp" style="font-size:12px;color:var(--accent);margin-top:4px"></div>
   </div>
+
   <div class="sec">💸 Ma Trận Chi Phí</div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
       <thead><tr>
-        <th>Người chơi</th>
-        <th class="num">💰 Sân + Thầy</th>
+        <th>Danh sách người chơi</th>
+        <th class="num">💰 Tiền sân (+Thầy)</th>
         <th class="num">🫶 Tip</th>
-        <th class="num">🚗 Xe</th>
-        <th class="num">🎾 Banh</th>
-        <th class="num" style="color:var(--accent)">TỔNG</th>
+        <th class="num">🚗 Gửi xe</th>
+        <th class="num">🎾 Tiền banh</th>
+        <th class="num" style="color:var(--accent)">TỔNG CHI PHÍ</th>
       </tr></thead>
       <tbody id="split-body"></tbody>
       <tfoot id="split-footer"></tfoot>
     </table></div>
   </div>
-  <div class="sec">🗒 Chi Tiết Theo Buổi</div>
-  <div id="per-session-detail"></div>
 </div>
 
-<!-- ═══ TAB: PAYMENTS ═══ -->
+<!-- ═══════════ TAB: PAYMENTS ═══════════ -->
 <div id="tab-payments" class="panel">
   <div class="sec">✅ Theo Dõi Thanh Toán</div>
   <div class="card">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:600">
-      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:800"></span> — Tick ✓ khi nhận đủ tiền
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px">
+      Tháng <span id="pay-month-lbl" style="color:var(--accent);font-weight:600"></span> — Tick ✓ sau khi nhận tiền
     </div>
     <div id="pay-list"></div>
   </div>
-
-  <!-- Receipts upload section -->
-  <div class="sec">🧾 Phiếu Thanh Toán</div>
-  <div class="card card-blue">
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:600">Upload ảnh chứng từ: biên lai tiền sân, tiền banh, chuyển khoản từ thành viên...</p>
-    <div class="upload-area" onclick="document.getElementById('receipt-input').click()">
-      <input type="file" id="receipt-input" accept="image/*" multiple onchange="handleReceiptUpload(event)">
-      <div style="font-size:28px;margin-bottom:6px">📸</div>
-      <div style="font-weight:700;color:var(--accent)">Nhấn để chọn ảnh</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;font-weight:600">Hỗ trợ JPG, PNG — lưu trên máy của bạn</div>
-    </div>
-    <div id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"></div>
-  </div>
-
-  <!-- Bank info -->
-  <div class="sec">🏦 Thông Tin Chuyển Khoản Của Tôi (người thu)</div>
-  <div class="card card-violet">
+  <div class="sec">🏦 Thông Tin Chuyển Khoản</div>
+  <div class="card">
     <div class="frow">
-      <div class="fg"><label>Tên ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
       <div class="fg"><label>Số tài khoản</label><input type="text" id="bank-acc" placeholder="6230686868"></div>
       <div class="fg"><label>Tên tài khoản</label><input type="text" id="bank-name" placeholder="Nguyen Hoang Ninh"></div>
+      <div class="fg"><label>Ngân hàng</label><input type="text" id="bank-bank" placeholder="Techcombank"></div>
     </div>
-    <button class="btn btn-p btn-sm" onclick="saveBankInfo()">💾 Lưu & Tạo QR</button>
-    <div id="bank-disp" style="margin-top:14px"></div>
-    <div id="my-qr-wrap" style="margin-top:14px"></div>
-  </div>
-
-  <!-- Court bank info -->
-  <div class="sec">🏟 Thông Tin Chủ Sân (thanh toán sân)</div>
-  <div class="card card-pink">
-    <div class="frow">
-      <div class="fg"><label>Tên ngân hàng</label><input type="text" id="court-bank" placeholder="Vietcombank"></div>
-      <div class="fg"><label>Số tài khoản</label><input type="text" id="court-acc" placeholder="1234567890"></div>
-      <div class="fg"><label>Tên tài khoản</label><input type="text" id="court-name" placeholder="Tên chủ sân"></div>
-    </div>
-    <button class="btn btn-pink btn-sm" onclick="saveCourtInfo()">💾 Lưu & Tạo QR</button>
-    <div id="court-disp" style="margin-top:14px"></div>
-    <div id="court-qr-wrap" style="margin-top:14px"></div>
+    <button class="btn btn-p btn-sm" onclick="saveBankInfo()">Lưu</button>
+    <div id="bank-disp" style="margin-top:12px"></div>
   </div>
 </div>
 
-<!-- ═══ TAB: SUMMARY / PDF ═══ -->
-<div id="tab-summary" class="panel">
-  <div class="sec">📄 Bảng Tổng Hợp Tháng</div>
-  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-    <button class="btn btn-p" onclick="window.print()">🖨️ In / Lưu PDF</button>
-    <button class="btn btn-s" onclick="renderSummaryPDF()">🔄 Làm mới</button>
-  </div>
-  <div id="pdf-preview"></div>
-</div>
-
-<!-- ═══ TAB: HISTORY ═══ -->
+<!-- ═══════════ TAB: HISTORY ═══════════ -->
 <div id="tab-history" class="panel">
   <div class="sec">📈 Biểu Đồ Chi Phí Theo Tháng</div>
-  <div class="card" style="height:300px;padding:18px"><canvas id="historyChart"></canvas></div>
-  <div class="sec">📊 Bảng Thống Kê</div>
+  <div class="card" style="height:300px;padding:18px">
+    <canvas id="historyChart"></canvas>
+  </div>
+  <div class="sec">📊 Bảng Thống Kê Tổng Hợp</div>
   <div class="card" style="padding:0">
     <div class="tw"><table>
-      <thead><tr><th>Tháng</th><th class="num">Buổi</th><th class="num">Sân+Thầy</th><th class="num">Tip+Xe</th><th class="num">Banh</th><th class="num">Tổng</th><th></th></tr></thead>
+      <thead><tr>
+        <th>Tháng</th><th class="num">Số Buổi</th>
+        <th class="num">Sân + Thầy</th><th class="num">Tip + Xe</th>
+        <th class="num">Tiền Banh</th><th class="num">Tổng</th><th></th>
+      </tr></thead>
       <tbody id="hist-body"></tbody>
     </table></div>
   </div>
 </div>
 
-<!-- ═══ TAB: SETTINGS ═══ -->
+<!-- ═══════════ TAB: SETTINGS ═══════════ -->
 <div id="tab-settings" class="panel">
   <div class="sec">📋 Master Data — Gói & Bảng Giá</div>
-  <div class="card card-violet">
+  <div class="card">
     <input type="hidden" id="md-edit-id">
     <div class="frow">
       <div class="fg w"><label>Tên Ca / Gói</label><input type="text" id="md-name" placeholder="VD: Tối Cuối tuần (17h-22h)"></div>
@@ -423,19 +308,21 @@ tr:hover td{background:var(--surface2);}
       <tbody id="md-body"></tbody>
     </table></div>
   </div>
-  <div class="sec">👥 Thành Viên</div>
-  <div class="card card-pink">
+
+  <div class="sec">👥 Quản Lý Thành Viên</div>
+  <div class="card">
     <div class="frow" style="align-items:flex-end">
       <div class="fg"><label>Tên thành viên</label><input type="text" id="new-member" placeholder="Tên..."></div>
-      <button class="btn btn-pink" onclick="addMember()">+ Thêm</button>
+      <button class="btn btn-p" onclick="addMember()">+ Thêm</button>
     </div>
     <div id="member-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"></div>
   </div>
-  <div class="sec">☁ Dữ Liệu & Firebase</div>
-  <div class="card card-blue">
-    <p style="color:var(--muted);font-size:13px;margin-bottom:12px;font-weight:600">Dữ liệu đồng bộ tự động qua Firebase. Mọi thành viên mở app đều thấy cập nhật mới nhất.</p>
+
+  <div class="sec">☁ Firebase — Đồng Bộ Đám Mây</div>
+  <div class="card">
+    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Dữ liệu tự động đồng bộ lên Firebase Realtime Database. Mọi thành viên mở app là thấy dữ liệu mới nhất.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-s" onclick="exportData()">📤 Xuất JSON</button>
+      <button class="btn btn-s" onclick="exportData()">📤 Xuất JSON (Backup)</button>
       <button class="btn btn-s" onclick="document.getElementById('imp-file').click()">📥 Nhập JSON</button>
       <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(event)">
       <button class="btn btn-s" onclick="forceSync()">🔄 Đồng bộ thủ công</button>
@@ -443,16 +330,18 @@ tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
-<!-- ═══ EDIT MODAL ═══ -->
+<!-- ═══════════ EDIT MODAL ═══════════ -->
 <div id="edit-modal" class="moverlay" style="display:none" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mtitle">✏️ Chỉnh Sửa Buổi (Ghi Đè Ngoại Lệ)</div>
-    <div class="alert-info">Dùng khi buổi đó phát sinh chi phí khác bình thường.</div>
+    <div class="alert alert-info">Dùng khi buổi đó phát sinh chi phí khác bình thường.</div>
     <input type="hidden" id="edit-id">
     <div class="frow">
       <div class="fg n"><label>Ngày</label><input type="date" id="edit-date" readonly style="opacity:.6"></div>
       <div class="fg n"><label>Ca tập</label><input type="text" id="edit-time" readonly style="opacity:.6"></div>
-      <div class="fg n"><label>Có thầy?</label><select id="edit-coach"><option value="yes">✅ Có thầy</option><option value="no">❌ Không thầy</option></select></div>
+      <div class="fg n"><label>Có thầy?</label>
+        <select id="edit-coach"><option value="yes">✅ Có thầy</option><option value="no">❌ Không thầy</option></select>
+      </div>
     </div>
     <div class="frow">
       <div class="fg"><label>Giá sân</label><input type="number" id="edit-court" step="10000"></div>
@@ -460,7 +349,9 @@ tr:hover td{background:var(--surface2);}
       <div class="fg"><label>Tip</label><input type="number" id="edit-tip" step="10000"></div>
       <div class="fg n"><label>Số xe</label><input type="number" id="edit-pcount" min="0"></div>
     </div>
-    <div class="fg" style="margin-bottom:14px"><label>Người chơi</label><div class="chips" id="edit-player-cbs"></div></div>
+    <div class="fg" style="margin-bottom:14px"><label>Người chơi</label>
+      <div class="chips" id="edit-player-cbs"></div>
+    </div>
     <div class="mact">
       <button class="btn btn-s" onclick="document.getElementById('edit-modal').style.display='none'">Hủy</button>
       <button class="btn btn-p" onclick="saveEdit()">💾 Lưu Ghi Đè</button>
@@ -468,15 +359,10 @@ tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
-<!-- ═══ IMAGE PREVIEW MODAL ═══ -->
-<div id="img-modal" class="moverlay" style="display:none" onclick="this.style.display='none'">
-  <img id="img-modal-src" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:var(--shadow-md)">
-</div>
-
 <script>
-// ═══════════════════════════════════════
-// FIREBASE CONFIG
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// FIREBASE CONFIG — Thay bằng config của bạn
+// ═══════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyD8g-xlQVX60xLqMzQNe7g-Ec2S1APdT2k",
   authDomain:        "quy-tennis.firebaseapp.com",
@@ -487,121 +373,162 @@ const FIREBASE_CONFIG = {
   appId:             "1:507405738478:web:7d0c4044a1e4bc75c02eff"
 };
 const PARKING_FEE = 5000;
-const DB_KEY      = 'tennis_mgr_v6';
+const DB_KEY      = 'tennis_mgr_v5';
 const FB_PATH     = 'tennis_data';
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 let state = {
   members:    ['Thúy','Ví','Ninh','Khánh','Phương'],
   months:     {},
-  masterData: [],
-  bankInfo:   {},
-  courtInfo:  {}
+  masterData: []
 };
 const DEFAULT_MASTER = [
-  { id:1, name:'Sáng thường (05-08h)',    court:120000, coach:200000, tip:50000 },
-  { id:2, name:'Ngày thường (08-17h)',    court:100000, coach:200000, tip:50000 },
-  { id:3, name:'Tối thường (17-22h)',     court:180000, coach:250000, tip:50000 },
+  { id:1, name:'Sáng thường (05h-08h)',   court:120000, coach:200000, tip:50000 },
+  { id:2, name:'Ngày thường (08h-17h)',   court:100000, coach:200000, tip:50000 },
+  { id:3, name:'Tối thường (17h-22h)',    court:180000, coach:250000, tip:50000 },
   { id:4, name:'Sáng cuối tuần (05-08h)',court:150000, coach:250000, tip:50000 },
   { id:5, name:'Ngày cuối tuần (08-17h)',court:150000, coach:250000, tip:50000 },
   { id:6, name:'Tối cuối tuần (17-22h)', court:200000, coach:250000, tip:50000 }
 ];
 
-let curMonth    = '';
-let selDates    = new Set();
-let dpViewMonth = '';
-let chartInst   = null;
-let db          = null;
-// Receipts stored as base64 in localStorage only (not Firebase, too large)
-let receipts    = []; // [{id, dataUrl, name}]
+let curMonth   = '';
+let selDates   = new Set();
+let dpViewMonth= '';
+let chartInst  = null;
+let db         = null;
 
-// ═══════════════════════════════════════
-// FIREBASE
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// FIREBASE INIT
+// ═══════════════════════════════════════════════════
 function initFirebase() {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
-    setSS('saving','⏳ Đang tải...');
-    db.ref(FB_PATH).on('value', snap => {
-      const cloud = snap.val();
-      if (cloud && cloud.members) { state = cloud; if(!state.masterData?.length) state.masterData=DEFAULT_MASTER; ensureMonth(curMonth); render(); }
-      setSS('ok','☁ Đã lưu');
-    }, () => setSS('err','⚠ Offline'));
-  } catch(e) { console.warn(e); setSS('err','⚠ Offline'); }
+    setSyncStatus('saving', '⏳ Đang tải...');
+
+    // Lắng nghe thay đổi realtime từ bất kỳ thiết bị nào
+    db.ref(FB_PATH).on('value', snapshot => {
+      const cloud = snapshot.val();
+      if (cloud && cloud.members) {
+        state = cloud;
+        ensureMonth(curMonth);
+        render();
+      }
+      setSyncStatus('ok', '☁ Đồng bộ');
+    }, err => {
+      console.warn('Firebase read error:', err);
+      setSyncStatus('err', '⚠ Offline');
+    });
+
+  } catch(e) {
+    console.warn('Firebase init failed:', e);
+    setSyncStatus('err', '⚠ Offline');
+  }
 }
-function setSS(cls,text){ const el=document.getElementById('sync-status'); el.className=cls; el.textContent=text; }
+
+function setSyncStatus(cls, text) {
+  const el = document.getElementById('sync-status');
+  el.className = `ok ${cls}`.trim();
+  el.className = cls;
+  el.textContent = text;
+}
+
 function save() {
+  // Backup local
   try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch(e){}
-  if (db) { setSS('saving','⏳ Đang lưu...'); db.ref(FB_PATH).set(state).then(()=>setSS('ok','☁ Đã lưu')).catch(()=>setSS('err','⚠ Lỗi')); }
+  // Push to Firebase
+  if (db) {
+    setSyncStatus('saving', '⏳ Đang lưu...');
+    db.ref(FB_PATH).set(state)
+      .then(() => setSyncStatus('ok', '☁ Đã lưu'))
+      .catch(() => setSyncStatus('err', '⚠ Lỗi lưu'));
+  }
 }
+
 function forceSync() {
   if (!db) { alert('Chưa kết nối Firebase!'); return; }
-  db.ref(FB_PATH).once('value').then(s=>{ const c=s.val(); if(c&&c.members){state=c;render();} setSS('ok','☁ Đồng bộ xong'); }).catch(()=>setSS('err','⚠ Lỗi'));
+  setSyncStatus('saving', '⏳ Đang đồng bộ...');
+  db.ref(FB_PATH).once('value').then(snap => {
+    const cloud = snap.val();
+    if (cloud && cloud.members) { state = cloud; render(); }
+    setSyncStatus('ok', '☁ Đã đồng bộ');
+  }).catch(() => setSyncStatus('err', '⚠ Lỗi'));
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function init() {
+  // 1. Load local cache ngay để UI không bị trắng
   const saved = localStorage.getItem(DB_KEY);
   if (saved) try { state = JSON.parse(saved); } catch(e){}
-  if (!state.masterData?.length) state.masterData = DEFAULT_MASTER;
-  if (!state.bankInfo)  state.bankInfo  = {};
-  if (!state.courtInfo) state.courtInfo = {};
-  // Load receipts from separate localStorage key (base64 images)
-  try { receipts = JSON.parse(localStorage.getItem('tennis_receipts_v1')||'[]'); } catch(e){ receipts=[]; }
 
+  // 2. Đảm bảo có masterData mặc định
+  if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
+
+  // 3. Thiết lập tháng hiện tại
   const now = new Date();
   curMonth    = ym(now.getFullYear(), now.getMonth()+1);
   dpViewMonth = curMonth;
   ensureMonth(curMonth);
+
+  // 4. Vẽ UI từ cache trước
   render();
+
+  // 5. Kết nối Firebase (sẽ update lại UI khi có dữ liệu mới hơn)
   initFirebase();
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function ensureMonth(m) {
-  if (!state.months[m]) state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[] };
+  if (!state.months[m]) state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[], bankInfo:{} };
 }
-function cd()  { ensureMonth(curMonth); return state.months[curMonth]; }
-function ym(y,m,d) { const s=`${y}-${String(m).padStart(2,'0')}`; return d!==undefined?`${s}-${String(d).padStart(2,'0')}`:s; }
+function cd() { ensureMonth(curMonth); return state.months[curMonth]; }
+function ym(y, m, d) {
+  const s = `${y}-${String(m).padStart(2,'0')}`;
+  return d !== undefined ? `${s}-${String(d).padStart(2,'0')}` : s;
+}
 function fmtMonth(m) { const [y,mo]=m.split('-'); return `Tháng ${parseInt(mo)}/${y}`; }
 function fmtDate(d)  { if(!d)return''; const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
 function fmt(n)      { return n ? new Intl.NumberFormat('vi-VN').format(Math.round(n)) : '0'; }
-function fmtD(n)     { return (n&&n>0) ? fmt(n) : '—'; }
+function fmtOrDash(n){ return (n && n>0) ? fmt(n) : '—'; }
 function pn(v)       { return parseInt(String(v||0).replace(/[^0-9]/g,''))||0; }
-function dayName(ds) { return ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][new Date(ds+'T00:00:00').getDay()]; }
-
-// ═══════════════════════════════════════
-// NAVIGATION & TABS
-// ═══════════════════════════════════════
-function changeMonth(dir) {
-  const [y,m]=curMonth.split('-').map(Number);
-  const d=new Date(y,m-1+dir,1);
-  curMonth=ym(d.getFullYear(),d.getMonth()+1);
-  dpViewMonth=curMonth; selDates.clear(); ensureMonth(curMonth); render();
+function dayName(ds) {
+  return ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][new Date(ds+'T00:00:00').getDay()];
 }
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION & TABS
+// ═══════════════════════════════════════════════════
+function changeMonth(dir) {
+  const [y,m] = curMonth.split('-').map(Number);
+  const d = new Date(y, m-1+dir, 1);
+  curMonth    = ym(d.getFullYear(), d.getMonth()+1);
+  dpViewMonth = curMonth;
+  selDates.clear();
+  ensureMonth(curMonth);
+  render();
+}
+
 function sw(name) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelector(`[onclick="sw('${name}')"]`).classList.add('active');
   document.getElementById(`tab-${name}`).classList.add('active');
-  if(name==='split')    renderSplit();
-  if(name==='payments') renderPayments();
-  if(name==='calendar') renderCalendar();
-  if(name==='history')  renderHistory();
-  if(name==='settings') renderSettings();
-  if(name==='summary')  renderSummaryPDF();
+  if (name==='split')    renderSplit();
+  if (name==='payments') renderPayments();
+  if (name==='calendar') renderCalendar();
+  if (name==='history')  renderHistory();
+  if (name==='settings') renderSettings();
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // FULL RENDER
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 function render() {
   document.getElementById('curMonthLbl').textContent     = fmtMonth(curMonth);
   document.getElementById('ses-month-title').textContent = fmtMonth(curMonth);
@@ -613,20 +540,22 @@ function render() {
   renderSplit();
   renderPayments();
   renderBankDisp();
-  renderCourtDisp();
-  renderReceiptThumbs();
-  if(document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
-  if(document.getElementById('tab-settings').classList.contains('active')) renderSettings();
+  if (document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+  if (document.getElementById('tab-settings').classList.contains('active')) renderSettings();
 }
 
-// ═══════════════════════════════════════
-// MASTER DATA
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// MASTER DATA (SETTINGS TAB)
+// ═══════════════════════════════════════════════════
 function renderSettings() {
-  const tbody = document.getElementById('md-body'); if(!tbody) return;
-  tbody.innerHTML = !state.masterData.length
-    ? `<tr><td colspan="5"><div class="empty"><div class="ei">📋</div>Chưa có gói</div></td></tr>`
-    : state.masterData.map(md=>`<tr>
+  // Master data table
+  const tbody = document.getElementById('md-body');
+  if (!tbody) return;
+  if (!state.masterData.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="ei">📋</div>Chưa có gói nào</div></td></tr>`;
+  } else {
+    tbody.innerHTML = state.masterData.map(md => `
+      <tr>
         <td><strong>${md.name}</strong></td>
         <td class="num">${fmt(md.court)}</td>
         <td class="num">${fmt(md.coach)}</td>
@@ -634,428 +563,557 @@ function renderSettings() {
         <td style="display:flex;gap:4px;justify-content:flex-end">
           <button class="btn btn-w btn-sm" onclick="editMD(${md.id})">✏️</button>
           <button class="btn btn-d btn-sm" onclick="deleteMD(${md.id})">✕</button>
-        </td></tr>`).join('');
-  const ml=document.getElementById('member-list'); if(ml)
-    ml.innerHTML=state.members.map((m,i)=>`
-      <div style="display:flex;align-items:center;gap:7px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700">
-        <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>${m}
-        <button class="btn btn-d btn-sm" onclick="removeMember(${i})">✕</button></div>`).join('');
+        </td>
+      </tr>`).join('');
+  }
+
+  // Member list
+  const ml = document.getElementById('member-list');
+  if (ml) {
+    ml.innerHTML = state.members.map((m,i) => `
+      <div style="display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px">
+        <div style="width:7px;height:7px;border-radius:50%;background:var(--accent)"></div>${m}
+        <button class="btn btn-d btn-sm" onclick="removeMember(${i})">✕</button>
+      </div>`).join('');
+  }
 }
+
 function saveMD() {
-  const id=document.getElementById('md-edit-id').value, name=document.getElementById('md-name').value.trim();
-  const court=pn(document.getElementById('md-court').value), coach=pn(document.getElementById('md-coach').value), tip=pn(document.getElementById('md-tip').value);
-  if(!name){alert('Nhập tên gói!');return;}
-  if(id){const md=state.masterData.find(x=>x.id===parseInt(id));if(md)Object.assign(md,{name,court,coach,tip});}
-  else state.masterData.push({id:Date.now(),name,court,coach,tip});
-  save();cancelMD();renderSettings();renderTemplateDropdown();
+  const editId = document.getElementById('md-edit-id').value;
+  const name   = document.getElementById('md-name').value.trim();
+  const court  = pn(document.getElementById('md-court').value);
+  const coach  = pn(document.getElementById('md-coach').value);
+  const tip    = pn(document.getElementById('md-tip').value);
+  if (!name) { alert('Nhập tên gói!'); return; }
+  if (editId) {
+    const md = state.masterData.find(x => x.id === parseInt(editId));
+    if (md) Object.assign(md, { name, court, coach, tip });
+  } else {
+    state.masterData.push({ id: Date.now(), name, court, coach, tip });
+  }
+  save(); cancelMD(); renderSettings(); renderTemplateDropdown();
 }
 function editMD(id) {
-  const md=state.masterData.find(x=>x.id===id);if(!md)return;
-  document.getElementById('md-edit-id').value=id; document.getElementById('md-name').value=md.name;
-  document.getElementById('md-court').value=md.court; document.getElementById('md-coach').value=md.coach;
-  document.getElementById('md-tip').value=md.tip;
-  document.getElementById('btn-md-save').textContent='💾 Cập Nhật';
-  document.getElementById('btn-md-cancel').style.display='inline-block';
+  const md = state.masterData.find(x => x.id === id);
+  if (!md) return;
+  document.getElementById('md-edit-id').value = id;
+  document.getElementById('md-name').value    = md.name;
+  document.getElementById('md-court').value   = md.court;
+  document.getElementById('md-coach').value   = md.coach;
+  document.getElementById('md-tip').value     = md.tip;
+  document.getElementById('btn-md-save').textContent      = '💾 Cập Nhật';
+  document.getElementById('btn-md-cancel').style.display  = 'inline-block';
 }
 function cancelMD() {
-  ['md-edit-id','md-name','md-court','md-coach','md-tip'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('btn-md-save').textContent='+ Thêm Gói Mới';
-  document.getElementById('btn-md-cancel').style.display='none';
+  ['md-edit-id','md-name','md-court','md-coach','md-tip'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('btn-md-save').textContent      = '+ Thêm Gói Mới';
+  document.getElementById('btn-md-cancel').style.display  = 'none';
 }
-function deleteMD(id){if(!confirm('Xóa gói này?'))return;state.masterData=state.masterData.filter(x=>x.id!==id);save();renderSettings();renderTemplateDropdown();}
-function renderTemplateDropdown(){
-  const sel=document.getElementById('s-template');if(!sel)return;
-  sel.innerHTML=state.masterData.length
-    ? state.masterData.map(md=>`<option value="${md.id}">${md.name} — Sân: ${fmt(md.court)} | Tip: ${fmt(md.tip)}</option>`).join('')
-    : `<option value="">-- Vào Cài Đặt để thêm gói --</option>`;
+function deleteMD(id) {
+  if (!confirm('Xóa gói giá này?')) return;
+  state.masterData = state.masterData.filter(md => md.id !== id);
+  save(); renderSettings(); renderTemplateDropdown();
 }
-function addMember(){
-  const n=document.getElementById('new-member').value.trim();
-  if(!n||state.members.includes(n)){alert(n?'Tên đã tồn tại!':'Nhập tên!');return;}
-  state.members.push(n);document.getElementById('new-member').value='';
-  save();renderSettings();renderPlayerCbs('player-cbs');renderBallCost();
+function renderTemplateDropdown() {
+  const sel = document.getElementById('s-template');
+  if (!sel) return;
+  sel.innerHTML = state.masterData.length
+    ? state.masterData.map(md => `<option value="${md.id}">${md.name} — Sân: ${fmt(md.court)} | Tip: ${fmt(md.tip)}</option>`).join('')
+    : `<option value="">-- Chưa có gói nào (vào Cài Đặt để thêm) --</option>`;
 }
-function removeMember(i){if(!confirm(`Xóa ${state.members[i]}?`))return;state.members.splice(i,1);save();render();}
 
-// ═══════════════════════════════════════
+// Members
+function addMember() {
+  const n = document.getElementById('new-member').value.trim();
+  if (!n || state.members.includes(n)) { alert(n ? 'Tên đã tồn tại!' : 'Nhập tên!'); return; }
+  state.members.push(n);
+  document.getElementById('new-member').value = '';
+  save(); renderSettings(); renderPlayerCbs('player-cbs'); renderBallCost();
+}
+function removeMember(i) {
+  if (!confirm(`Xóa ${state.members[i]}?`)) return;
+  state.members.splice(i,1); save(); render();
+}
+
+// ═══════════════════════════════════════════════════
 // DATE PICKER
-// ═══════════════════════════════════════
-function renderDp(){
-  const [y,m]=dpViewMonth.split('-').map(Number);
-  const fd=new Date(y,m-1,1).getDay(), dim=new Date(y,m,0).getDate(), pd=new Date(y,m-1,0).getDate();
-  const today=ym(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate());
-  let html=`<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+// ═══════════════════════════════════════════════════
+function renderDp() {
+  const [y,m] = dpViewMonth.split('-').map(Number);
+  const firstDay    = new Date(y,m-1,1).getDay();
+  const daysInMonth = new Date(y,m,0).getDate();
+  const prevDays    = new Date(y,m-1,0).getDate();
+  const todayStr    = ym(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+
+  let html = `<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
     <button class="btn btn-s btn-sm" onclick="dpShift(-1)">‹</button>
-    <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);font-weight:700">${fmtMonth(dpViewMonth)}</span>
+    <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent)">${fmtMonth(dpViewMonth)}</span>
     <button class="btn btn-s btn-sm" onclick="dpShift(1)">›</button>
     <button class="btn btn-s btn-sm" onclick="selDates.clear();renderDp();updLbl()" style="margin-left:6px">Bỏ hết</button>
   </div><div class="dpgrid">`;
-  ['CN','T2','T3','T4','T5','T6','T7'].forEach(d=>html+=`<div class="dph">${d}</div>`);
-  for(let i=0;i<fd;i++) html+=`<div class="dpd om">${pd-fd+1+i}</div>`;
-  for(let d=1;d<=dim;d++){const ds=ym(y,m,d);html+=`<div class="dpd${selDates.has(ds)?' sel':''}${ds===today?' today':''}" onclick="togDate('${ds}')">${d}</div>`;}
-  const rem=(fd+dim)%7===0?0:7-(fd+dim)%7;
-  for(let d=1;d<=rem;d++) html+=`<div class="dpd om">${d}</div>`;
-  document.getElementById('dp-wrap').innerHTML=html+'</div>';
+
+  ['CN','T2','T3','T4','T5','T6','T7'].forEach(d => html += `<div class="dph">${d}</div>`);
+  for (let i=0; i<firstDay; i++)     html += `<div class="dpd om">${prevDays-firstDay+1+i}</div>`;
+  for (let d=1; d<=daysInMonth; d++) {
+    const ds = ym(y,m,d);
+    html += `<div class="dpd${selDates.has(ds)?' sel':''}${ds===todayStr?' today':''}" onclick="togDate('${ds}')">${d}</div>`;
+  }
+  const rem = (firstDay+daysInMonth)%7 === 0 ? 0 : 7-(firstDay+daysInMonth)%7;
+  for (let d=1; d<=rem; d++) html += `<div class="dpd om">${d}</div>`;
+  html += '</div>';
+
+  document.getElementById('dp-wrap').innerHTML = html;
   updLbl();
 }
-function dpShift(dir){const[y,m]=dpViewMonth.split('-').map(Number);const d=new Date(y,m-1+dir,1);dpViewMonth=ym(d.getFullYear(),d.getMonth()+1);renderDp();}
-function togDate(ds){selDates.has(ds)?selDates.delete(ds):selDates.add(ds);renderDp();}
-function updLbl(){const el=document.getElementById('sel-dates-lbl');if(!el)return;el.textContent=selDates.size?`Đã chọn ${selDates.size} ngày: ${[...selDates].sort().map(fmtDate).join(', ')}`:'Chưa chọn ngày nào';}
-
-// ═══════════════════════════════════════
-// PLAYER CHIPS
-// ═══════════════════════════════════════
-function renderPlayerCbs(id,checked=null){
-  const c=document.getElementById(id);if(!c)return;
-  c.innerHTML=state.members.map(m=>`<label class="chip"><input type="checkbox" value="${m}" ${checked&&checked.has(m)?'checked':''}> ${m}</label>`).join('');
+function dpShift(dir) {
+  const [y,m] = dpViewMonth.split('-').map(Number);
+  const d = new Date(y, m-1+dir, 1);
+  dpViewMonth = ym(d.getFullYear(), d.getMonth()+1);
+  renderDp();
+}
+function togDate(ds) { selDates.has(ds) ? selDates.delete(ds) : selDates.add(ds); renderDp(); }
+function updLbl() {
+  const el = document.getElementById('sel-dates-lbl');
+  if (!el) return;
+  el.textContent = selDates.size
+    ? `Đã chọn ${selDates.size} ngày: ${[...selDates].sort().map(fmtDate).join(', ')}`
+    : 'Chưa chọn ngày nào';
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// PLAYER CHECKBOXES
+// ═══════════════════════════════════════════════════
+function renderPlayerCbs(containerId, checked=null) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = state.members.map(m =>
+    `<label class="chip"><input type="checkbox" value="${m}" ${checked&&checked.has(m)?'checked':''}> ${m}</label>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════
 // SESSIONS
-// ═══════════════════════════════════════
-function addSession(){
-  if(!selDates.size){alert('Chọn ít nhất 1 ngày!');return;}
-  const tid=parseInt(document.getElementById('s-template').value);if(!tid){alert('Chọn gói ca tập!');return;}
-  const tmpl=state.masterData.find(t=>t.id===tid);if(!tmpl){alert('Gói không hợp lệ!');return;}
-  const hasCoach=document.getElementById('s-coach').value==='yes';
-  const parkCount=pn(document.getElementById('s-parking-count').value);
-  const players=[...document.querySelectorAll('#player-cbs input:checked')].map(c=>c.value);
-  if(!players.length){alert('Chọn ít nhất 1 người chơi!');return;}
-  const courtFee=tmpl.court, coachFee=hasCoach?tmpl.coach:0, tip=hasCoach?tmpl.tip:0;
-  const parkTotal=parkCount*PARKING_FEE, total=courtFee+coachFee+tip+parkTotal;
-  [...selDates].sort().forEach(date=>{
-    const mk=date.slice(0,7);ensureMonth(mk);
-    state.months[mk].sessions.push({id:Date.now()+Math.random(),date,day:dayName(date),time:tmpl.name,templateId:tid,hasCoach,courtFee,coachFee,tip,parkCount,parkFeeEach:PARKING_FEE,parkTotal,total,players});
-    state.months[mk].sessions.sort((a,b)=>a.date.localeCompare(b.date));
+// ═══════════════════════════════════════════════════
+function addSession() {
+  if (!selDates.size) { alert('Chọn ít nhất 1 ngày!'); return; }
+  const templateId = parseInt(document.getElementById('s-template').value);
+  if (!templateId)   { alert('Chọn gói ca tập!'); return; }
+  const tmpl       = state.masterData.find(t => t.id === templateId);
+  if (!tmpl)         { alert('Gói không hợp lệ!'); return; }
+  const hasCoach   = document.getElementById('s-coach').value === 'yes';
+  const parkCount  = pn(document.getElementById('s-parking-count').value);
+  const players    = [...document.querySelectorAll('#player-cbs input:checked')].map(c=>c.value);
+  if (!players.length) { alert('Chọn ít nhất 1 người chơi!'); return; }
+
+  const courtFee   = tmpl.court;
+  const coachFee   = hasCoach ? tmpl.coach : 0;
+  const tip        = hasCoach ? tmpl.tip   : 0;
+  const parkTotal  = parkCount * PARKING_FEE;
+  const total      = courtFee + coachFee + tip + parkTotal;
+
+  [...selDates].sort().forEach(date => {
+    const mk = date.slice(0,7);
+    ensureMonth(mk);
+    state.months[mk].sessions.push({
+      id: Date.now() + Math.random(),
+      date, day: dayName(date), time: tmpl.name,
+      templateId, hasCoach,
+      courtFee, coachFee, tip,
+      parkCount, parkFeeEach: PARKING_FEE, parkTotal,
+      total, players
+    });
+    state.months[mk].sessions.sort((a,b) => a.date.localeCompare(b.date));
   });
-  save();selDates.clear();document.getElementById('s-parking-count').value='0';
-  renderPlayerCbs('player-cbs');renderDp();renderSessionsTable();renderSplit();
+
+  save();
+  selDates.clear();
+  document.getElementById('s-parking-count').value = '0';
+  renderPlayerCbs('player-cbs');
+  renderDp();
+  renderSessionsTable();
+  renderSplit();
 }
-function deleteSession(id){
-  if(!confirm('Xóa buổi này?'))return;
-  cd().sessions=cd().sessions.filter(s=>s.id!==id);save();renderSessionsTable();renderSplit();
-  if(document.getElementById('tab-calendar').classList.contains('active'))renderCalendar();
+
+function deleteSession(id) {
+  if (!confirm('Xóa buổi này?')) return;
+  cd().sessions = cd().sessions.filter(s => s.id !== id);
+  save(); renderSessionsTable(); renderSplit();
+  if (document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
 }
-function renderSessionsTable(){
-  const sessions=cd().sessions,tbody=document.getElementById('ses-body');
-  if(!sessions.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="ei">🎾</div>Chưa có buổi nào tháng này</div></td></tr>`;return;}
-  tbody.innerHTML=sessions.map(s=>`<tr>
-    <td><span style="font-family:'DM Mono',monospace;font-size:12px">${fmtDate(s.date)}</span><br><span style="color:var(--muted);font-size:11px">${s.day}</span></td>
-    <td style="font-size:13px">${s.time}</td>
+
+function renderSessionsTable() {
+  const sessions = cd().sessions;
+  const tbody    = document.getElementById('ses-body');
+  if (!sessions.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="ei">🎾</div>Chưa có buổi nào tháng này</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sessions.map(s => `<tr>
+    <td>
+      <span style="font-family:'DM Mono',monospace;font-size:12px">${fmtDate(s.date)}</span>
+      <br><span style="color:var(--muted);font-size:11px">${s.day}</span>
+    </td>
+    <td style="max-width:140px;font-size:13px">${s.time}</td>
     <td><span class="tag ${s.hasCoach?'tc':'tnc'}">${s.hasCoach?'Có thầy':'Không thầy'}</span></td>
     <td class="num">${fmt(s.courtFee)}</td>
-    <td class="num">${fmtD(s.coachFee)}</td>
-    <td class="num">${fmtD(s.tip)}</td>
-    <td class="num">${s.parkTotal?`${s.parkCount}xe×5k`:'—'}</td>
-    <td class="num" style="color:var(--accent);font-weight:800">${fmt(s.total)}</td>
+    <td class="num">${fmtOrDash(s.coachFee)}</td>
+    <td class="num">${fmtOrDash(s.tip)}</td>
+    <td class="num">${s.parkTotal ? `${s.parkCount}xe×5k` : '—'}</td>
+    <td class="num" style="color:var(--accent);font-weight:600">${fmt(s.total)}</td>
     <td>${s.players.map(p=>`<span class="tp">${p}</span>`).join('')}</td>
     <td style="display:flex;gap:4px;justify-content:flex-end">
       <button class="btn btn-w btn-sm" onclick="openEdit(${s.id})">✏️</button>
       <button class="btn btn-d btn-sm" onclick="deleteSession(${s.id})">✕</button>
-    </td></tr>`).join('');
+    </td>
+  </tr>`).join('');
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // EDIT MODAL
-// ═══════════════════════════════════════
-function openEdit(id){
-  const s=cd().sessions.find(x=>x.id===id);if(!s)return;
-  document.getElementById('edit-id').value=id;document.getElementById('edit-date').value=s.date;
-  document.getElementById('edit-time').value=s.time;document.getElementById('edit-coach').value=s.hasCoach?'yes':'no';
-  document.getElementById('edit-court').value=s.courtFee;document.getElementById('edit-coachfee').value=s.coachFee||0;
-  document.getElementById('edit-tip').value=s.tip||0;document.getElementById('edit-pcount').value=s.parkCount||0;
-  renderPlayerCbs('edit-player-cbs',new Set(s.players));
-  document.getElementById('edit-modal').style.display='flex';
+// ═══════════════════════════════════════════════════
+function openEdit(id) {
+  const s = cd().sessions.find(x => x.id===id);
+  if (!s) return;
+  document.getElementById('edit-id').value       = id;
+  document.getElementById('edit-date').value     = s.date;
+  document.getElementById('edit-time').value     = s.time;
+  document.getElementById('edit-coach').value    = s.hasCoach ? 'yes' : 'no';
+  document.getElementById('edit-court').value    = s.courtFee;
+  document.getElementById('edit-coachfee').value = s.coachFee || 0;
+  document.getElementById('edit-tip').value      = s.tip || 0;
+  document.getElementById('edit-pcount').value   = s.parkCount || 0;
+  renderPlayerCbs('edit-player-cbs', new Set(s.players));
+  document.getElementById('edit-modal').style.display = 'flex';
 }
-function closeModal(e){if(e.target===document.getElementById('edit-modal'))document.getElementById('edit-modal').style.display='none';}
-function saveEdit(){
-  const id=parseFloat(document.getElementById('edit-id').value),s=cd().sessions.find(x=>x.id===id);if(!s)return;
-  s.hasCoach=document.getElementById('edit-coach').value==='yes';
-  s.courtFee=pn(document.getElementById('edit-court').value);
-  s.coachFee=s.hasCoach?pn(document.getElementById('edit-coachfee').value):0;
-  s.tip=pn(document.getElementById('edit-tip').value);
-  s.parkCount=pn(document.getElementById('edit-pcount').value);s.parkFeeEach=PARKING_FEE;s.parkTotal=s.parkCount*PARKING_FEE;
-  s.players=[...document.querySelectorAll('#edit-player-cbs input:checked')].map(c=>c.value);
-  s.total=s.courtFee+s.coachFee+s.tip+s.parkTotal;
-  save();document.getElementById('edit-modal').style.display='none';renderSessionsTable();renderSplit();
+function closeModal(e) {
+  if (e.target === document.getElementById('edit-modal'))
+    document.getElementById('edit-modal').style.display = 'none';
+}
+function saveEdit() {
+  const id = parseFloat(document.getElementById('edit-id').value);
+  const s  = cd().sessions.find(x => x.id===id);
+  if (!s) return;
+  s.hasCoach  = document.getElementById('edit-coach').value === 'yes';
+  s.courtFee  = pn(document.getElementById('edit-court').value);
+  s.coachFee  = s.hasCoach ? pn(document.getElementById('edit-coachfee').value) : 0;
+  s.tip       = pn(document.getElementById('edit-tip').value);
+  s.parkCount = pn(document.getElementById('edit-pcount').value);
+  s.parkFeeEach = PARKING_FEE;
+  s.parkTotal = s.parkCount * PARKING_FEE;
+  s.players   = [...document.querySelectorAll('#edit-player-cbs input:checked')].map(c=>c.value);
+  s.total     = s.courtFee + s.coachFee + s.tip + s.parkTotal;
+  save();
+  document.getElementById('edit-modal').style.display = 'none';
+  renderSessionsTable(); renderSplit();
+  if (document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // CALENDAR
-// ═══════════════════════════════════════
-function renderCalendar(){
-  const el=document.getElementById('cal-title');if(el)el.textContent=fmtMonth(curMonth);
-  const [y,m]=curMonth.split('-').map(Number),fd=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();
-  const today=ym(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate());
-  document.getElementById('cal-heads').innerHTML=['CN','T2','T3','T4','T5','T6','T7'].map(d=>`<div class="chead">${d}</div>`).join('');
-  const byDate={};(cd().sessions||[]).forEach(s=>{(byDate[s.date]=byDate[s.date]||[]).push(s);});
-  let html='';
-  for(let i=0;i<fd;i++) html+=`<div class="cday om"></div>`;
-  for(let d=1;d<=days;d++){const ds=ym(y,m,d),ss=byDate[ds]||[];html+=`<div class="cday${ss.length?' hs':''}${ds===today?' td':''}"><div class="cdnum">${d}</div>${ss.map(s=>`<div class="cpill${s.hasCoach?'':' nc'}">${s.time}: ${fmt(s.total)}</div>`).join('')}</div>`;}
-  document.getElementById('cal-body').innerHTML=html;
+// ═══════════════════════════════════════════════════
+function renderCalendar() {
+  const el = document.getElementById('cal-title');
+  if (el) el.textContent = fmtMonth(curMonth);
+  const [y,m]   = curMonth.split('-').map(Number);
+  const firstDay = new Date(y,m-1,1).getDay();
+  const days     = new Date(y,m,0).getDate();
+  const todayStr = ym(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+
+  document.getElementById('cal-heads').innerHTML =
+    ['CN','T2','T3','T4','T5','T6','T7'].map(d=>`<div class="chead">${d}</div>`).join('');
+
+  const byDate = {};
+  (cd().sessions||[]).forEach(s => { (byDate[s.date] = byDate[s.date]||[]).push(s); });
+
+  let html = '';
+  for (let i=0; i<firstDay; i++) html += `<div class="cday om"></div>`;
+  for (let d=1; d<=days; d++) {
+    const ds = ym(y,m,d), ss = byDate[ds]||[], isToday = ds===todayStr;
+    html += `<div class="cday${ss.length?' hs':''}${isToday?' td':''}">
+      <div class="cdnum">${d}</div>
+      ${ss.map(s=>`<div class="cpill${s.hasCoach?'':' nc'}" title="${s.time}: ${fmt(s.total)}">${s.time}: ${fmt(s.total)}</div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('cal-body').innerHTML = html;
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // BALL COST
-// ═══════════════════════════════════════
-function renderBallCost(){
-  const data=cd(),ballEl=document.getElementById('ball-cost');if(ballEl)ballEl.value=data.ballCost||0;
-  const bpEl=document.getElementById('ball-players');if(!bpEl)return;
-  const checked=new Set(data.ballPlayers?.length?data.ballPlayers:state.members);
-  bpEl.innerHTML=state.members.map(m=>`<label class="chip"><input type="checkbox" value="${m}" ${checked.has(m)?'checked':''} onchange="saveBallCost()"> ${m}</label>`).join('');
+// ═══════════════════════════════════════════════════
+function renderBallCost() {
+  const data  = cd();
+  const ballEl = document.getElementById('ball-cost');
+  if (ballEl) ballEl.value = data.ballCost || 0;
+  const bpEl = document.getElementById('ball-players');
+  if (!bpEl) return;
+  const checked = new Set(data.ballPlayers?.length ? data.ballPlayers : state.members);
+  bpEl.innerHTML = state.members.map(m =>
+    `<label class="chip"><input type="checkbox" value="${m}" ${checked.has(m)?'checked':''} onchange="saveBallCost()"> ${m}</label>`
+  ).join('');
   updateBallPP();
 }
-function saveBallCost(){cd().ballCost=pn(document.getElementById('ball-cost')?.value||0);cd().ballPlayers=[...document.querySelectorAll('#ball-players input:checked')].map(c=>c.value);save();updateBallPP();renderSplit();}
-function updateBallPP(){const el=document.getElementById('ball-pp');if(!el)return;const cost=cd().ballCost,p=cd().ballPlayers||[];el.textContent=(cost&&p.length)?`→ Mỗi người: ${fmt(Math.round(cost/p.length))} (${p.length} người)`:'';}
+function saveBallCost() {
+  cd().ballCost   = pn(document.getElementById('ball-cost')?.value || 0);
+  cd().ballPlayers = [...document.querySelectorAll('#ball-players input:checked')].map(c=>c.value);
+  save(); updateBallPP(); renderSplit();
+}
+function updateBallPP() {
+  const el = document.getElementById('ball-pp');
+  if (!el) return;
+  const cost = cd().ballCost, players = cd().ballPlayers || [];
+  el.textContent = (cost && players.length)
+    ? `→ Mỗi người: ${fmt(Math.round(cost/players.length))} (${players.length} người)`
+    : '';
+}
 
-// ═══════════════════════════════════════
-// SPLIT
-// ═══════════════════════════════════════
-function calcSplit(){
-  const sessions=cd().sessions,data=cd(),mt={};
-  state.members.forEach(m=>mt[m]={sessions:0,courtCoach:0,tip:0,parking:0,ball:0,total:0});
-  sessions.forEach(s=>{
-    const n=s.players.length,cc=(s.courtFee+s.coachFee)/n,tp=s.tip/n,pk=(s.parkTotal||0)/n;
-    s.players.forEach(p=>{if(!mt[p])mt[p]={sessions:0,courtCoach:0,tip:0,parking:0,ball:0,total:0};mt[p].sessions++;mt[p].courtCoach+=cc;mt[p].tip+=tp;mt[p].parking+=pk;});
+// ═══════════════════════════════════════════════════
+// SPLIT CALCULATION
+// ═══════════════════════════════════════════════════
+function calcSplit() {
+  const sessions = cd().sessions;
+  const data     = cd();
+  const mt = {};
+  state.members.forEach(m => mt[m] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 });
+
+  sessions.forEach(s => {
+    const n  = s.players.length;
+    const cc = (s.courtFee + s.coachFee) / n;
+    const tp = s.tip / n;
+    const pk = (s.parkTotal||0) / n;
+    s.players.forEach(p => {
+      if (!mt[p]) mt[p] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 };
+      mt[p].sessions++; mt[p].courtCoach += cc; mt[p].tip += tp; mt[p].parking += pk;
+    });
   });
-  const bc=data.ballCost||0,bp=data.ballPlayers||[];
-  if(bc&&bp.length){const pp=bc/bp.length;bp.forEach(p=>{if(!mt[p])mt[p]={sessions:0,courtCoach:0,tip:0,parking:0,ball:0,total:0};mt[p].ball+=pp;});}
-  Object.values(mt).forEach(v=>v.total=v.courtCoach+v.tip+v.parking+v.ball);
+
+  const ballCost = data.ballCost || 0, ballPlayers = data.ballPlayers || [];
+  if (ballCost && ballPlayers.length) {
+    const pp = ballCost / ballPlayers.length;
+    ballPlayers.forEach(p => {
+      if (!mt[p]) mt[p] = { sessions:0, courtCoach:0, tip:0, parking:0, ball:0, total:0 };
+      mt[p].ball += pp;
+    });
+  }
+  Object.values(mt).forEach(v => v.total = v.courtCoach + v.tip + v.parking + v.ball);
   return mt;
 }
-function renderSplit(){
-  if(!document.getElementById('tab-split').classList.contains('active'))return;
+
+function renderSplit() {
+  if (!document.getElementById('tab-split').classList.contains('active')) return;
   renderBallCost();
-  const totals=calcSplit(),active=Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
-  const payments=cd().payments,sessions=cd().sessions;
-  const sumTotal=active.reduce((s,[,v])=>s+v.total,0);
-  document.getElementById('sum-cards').innerHTML=`
-    <div class="scard violet"><div class="slbl">Tổng chi phí</div><div class="sval" style="color:var(--accent)">${fmt(sumTotal)}</div><div class="ssub">${fmtMonth(curMonth)}</div></div>
-    <div class="scard green"><div class="slbl">Số buổi</div><div class="sval" style="color:var(--accent2)">${sessions.length}</div><div class="ssub">buổi tập</div></div>
-    <div class="scard pink"><div class="slbl">Đã thanh toán</div><div class="sval" style="color:var(--accent4)">${Object.values(payments).filter(v=>v).length}/${active.length}</div><div class="ssub">người</div></div>`;
-  let sc=0,st=0,sp=0,sb=0,sa=0,htmlRows='';
-  active.forEach(([name,v])=>{sc+=v.courtCoach;st+=v.tip;sp+=v.parking;sb+=v.ball;sa+=v.total;
-    htmlRows+=`<tr class="split-row">
+
+  const totals  = calcSplit();
+  const active  = Object.entries(totals).filter(([,v]) => v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
+  const payments = cd().payments;
+  const sessions = cd().sessions;
+
+  // Summary cards
+  const sumTotal = active.reduce((s,[,v])=>s+v.total, 0);
+  document.getElementById('sum-cards').innerHTML = `
+    <div class="scard"><div class="slbl">Tổng chi phí</div><div class="sval">${fmt(sumTotal)}</div><div class="ssub">${fmtMonth(curMonth)}</div></div>
+    <div class="scard"><div class="slbl">Số buổi</div><div class="sval">${sessions.length}</div><div class="ssub">buổi tập</div></div>
+    <div class="scard"><div class="slbl">Đã thanh toán</div><div class="sval" style="color:var(--accent2)">${Object.values(payments).filter(v=>v).length}/${active.length}</div><div class="ssub">người</div></div>`;
+
+  // Matrix rows
+  let sumCourt=0, sumTip=0, sumPark=0, sumBall=0, sumAll=0;
+  let htmlRows = '';
+  active.forEach(([name, v]) => {
+    sumCourt += v.courtCoach; sumTip += v.tip; sumPark += v.parking; sumBall += v.ball; sumAll += v.total;
+    htmlRows += `<tr class="split-row">
       <td><strong>${name}</strong> <span style="color:var(--muted);font-size:11px">(${v.sessions} buổi)</span>
-        <span class="${payments[name]?'paid':'unpaid'}" style="margin-left:6px">${payments[name]?'✓ Đã đóng':'⏳ Chưa'}</span></td>
+        <span class="${payments[name]?'paid':'unpaid'}" style="margin-left:6px">${payments[name]?'✓ Đã đóng':'⏳ Chưa'}</span>
+      </td>
       <td class="num">${fmt(Math.round(v.courtCoach))}</td>
-      <td class="num">${fmtD(Math.round(v.tip))}</td>
-      <td class="num">${fmtD(Math.round(v.parking))}</td>
-      <td class="num">${fmtD(Math.round(v.ball))}</td>
-      <td class="num" style="color:var(--accent);font-weight:800;font-size:15px">${fmt(Math.round(v.total))}</td></tr>`;
+      <td class="num">${fmtOrDash(Math.round(v.tip))}</td>
+      <td class="num">${fmtOrDash(Math.round(v.parking))}</td>
+      <td class="num">${fmtOrDash(Math.round(v.ball))}</td>
+      <td class="num" style="color:var(--accent);font-weight:700;font-size:15px">${fmt(Math.round(v.total))}</td>
+    </tr>`;
   });
-  if(!active.length) htmlRows=`<tr><td colspan="6"><div class="empty"><div class="ei">💸</div>Chưa có dữ liệu</div></td></tr>`;
-  document.getElementById('split-body').innerHTML=htmlRows;
-  document.getElementById('split-footer').innerHTML=active.length?`<tr><td>📊 TỔNG</td><td class="num">${fmt(Math.round(sc))}</td><td class="num">${fmt(Math.round(st))}</td><td class="num">${fmt(Math.round(sp))}</td><td class="num">${fmt(Math.round(sb))}</td><td class="num">${fmt(Math.round(sa))}</td></tr>`:'';
-  renderPerSessionDetail(sessions);
-}
-function renderPerSessionDetail(sessions){
-  const c=document.getElementById('per-session-detail');if(!c)return;
-  if(!sessions?.length){c.innerHTML='';return;}
-  c.innerHTML=sessions.map(s=>{
-    const n=s.players.length,cpp=(s.courtFee+s.coachFee)/n,tpp=s.tip/n,ppp=(s.parkTotal||0)/n;
-    return `<div class="ses-card">
-      <div class="ses-card-hdr">
-        <div class="ses-card-meta">
-          <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);font-weight:700">${fmtDate(s.date)}</span>
-          <span style="color:var(--muted);font-size:13px;font-weight:600">${s.day}</span>
-          <span style="color:var(--muted);font-size:13px;font-weight:600">${s.time}</span>
-          <span class="tag ${s.hasCoach?'tc':'tnc'}">${s.hasCoach?'Có thầy':'Không thầy'}</span>
-          ${s.parkCount?`<span style="color:var(--muted);font-size:12px;font-weight:600">🚗 ${s.parkCount} xe</span>`:''}
-        </div>
-        <div class="ses-total">${fmt(s.total)}</div>
-      </div>
-      <div class="tw"><table>
-        <thead><tr><th>Người chơi</th><th class="num">Sân + Thầy</th><th class="num">Tip</th><th class="num">Xe (chia đều)</th><th class="num" style="color:var(--accent)">Cộng</th></tr></thead>
-        <tbody>${s.players.map(p=>`<tr><td style="font-weight:700">${p}</td><td class="num">${fmt(Math.round(cpp))}</td><td class="num">${tpp?fmt(Math.round(tpp)):'—'}</td><td class="num">${ppp?fmt(Math.round(ppp)):'—'}</td><td class="num ses-ptotal">${fmt(Math.round(cpp+tpp+ppp))}</td></tr>`).join('')}</tbody>
-      </table></div></div>`;
-  }).join('');
+
+  if (!active.length) htmlRows = `<tr><td colspan="6"><div class="empty"><div class="ei">💸</div>Chưa có dữ liệu</div></td></tr>`;
+
+  document.getElementById('split-body').innerHTML   = htmlRows;
+  document.getElementById('split-footer').innerHTML = active.length ? `
+    <tr>
+      <td>📊 TỔNG CHI PHÍ</td>
+      <td class="num">${fmt(Math.round(sumCourt))}</td>
+      <td class="num">${fmt(Math.round(sumTip))}</td>
+      <td class="num">${fmt(Math.round(sumPark))}</td>
+      <td class="num">${fmt(Math.round(sumBall))}</td>
+      <td class="num" style="color:var(--accent2)">${fmt(Math.round(sumAll))}</td>
+    </tr>` : '';
 }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // PAYMENTS
-// ═══════════════════════════════════════
-function renderPayments(){
-  if(!document.getElementById('tab-payments').classList.contains('active'))return;
-  document.getElementById('pay-month-lbl').textContent=fmtMonth(curMonth);
-  const totals=calcSplit(),payments=cd().payments;
-  const active=Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
-  const el=document.getElementById('pay-list');
-  if(!active.length){el.innerHTML=`<div class="empty"><div class="ei">✅</div>Chưa có dữ liệu</div>`;return;}
-  el.innerHTML=active.map(([name,v])=>`
-    <div class="pay-person-card ${payments[name]?'is-paid':''}">
+// ═══════════════════════════════════════════════════
+function renderPayments() {
+  if (!document.getElementById('tab-payments').classList.contains('active')) return;
+  document.getElementById('pay-month-lbl').textContent = fmtMonth(curMonth);
+  const totals   = calcSplit();
+  const payments = cd().payments;
+  const active   = Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
+  const el       = document.getElementById('pay-list');
+
+  if (!active.length) { el.innerHTML=`<div class="empty"><div class="ei">✅</div>Chưa có dữ liệu</div>`; return; }
+
+  el.innerHTML = active.map(([name,v]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:12px">
-        <input type="checkbox" ${payments[name]?'checked':''} onchange="togPay('${name}')" style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent2)">
+        <input type="checkbox" ${payments[name]?'checked':''} onchange="togPay('${name}')" style="width:18px;height:18px;cursor:pointer">
         <div>
-          <div style="font-weight:800;font-size:15px">${name}</div>
-          <div style="font-size:11px;color:var(--muted);font-weight:600">${v.sessions} buổi${v.ball?' + tiền banh':''}</div>
+          <div style="font-weight:600">${name}</div>
+          <div style="font-size:11px;color:var(--muted)">${v.sessions} buổi${v.ball?' + tiền banh':''}</div>
         </div>
       </div>
       <div style="text-align:right">
-        <div style="font-family:'DM Mono',monospace;font-size:18px;color:var(--accent);font-weight:800">${fmt(Math.round(v.total))}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:600">${fmt(Math.round(v.total))}</div>
         <div class="${payments[name]?'paid':'unpaid'}">${payments[name]?'✓ Đã đóng':'⏳ Chưa đóng'}</div>
       </div>
     </div>`).join('');
-  renderBankDisp();renderCourtDisp();renderReceiptThumbs();
+  renderBankDisp();
 }
-function togPay(name){cd().payments[name]=!cd().payments[name];save();renderPayments();}
-
-// ═══════════════════════════════════════
-// BANK INFO + QR
-// ═══════════════════════════════════════
-function saveBankInfo(){
-  state.bankInfo={acc:document.getElementById('bank-acc').value.trim(),name:document.getElementById('bank-name').value.trim(),bank:document.getElementById('bank-bank').value.trim()};
-  save();renderBankDisp();
+function togPay(name) { cd().payments[name] = !cd().payments[name]; save(); renderPayments(); renderSplit(); }
+function saveBankInfo() {
+  cd().bankInfo = {
+    acc:  document.getElementById('bank-acc').value.trim(),
+    name: document.getElementById('bank-name').value.trim(),
+    bank: document.getElementById('bank-bank').value.trim()
+  };
+  save(); renderBankDisp();
 }
-function saveCourtInfo(){
-  state.courtInfo={acc:document.getElementById('court-acc').value.trim(),name:document.getElementById('court-name').value.trim(),bank:document.getElementById('court-bank').value.trim()};
-  save();renderCourtDisp();
-}
-function renderBankDisp(){
-  const info=state.bankInfo,el=document.getElementById('bank-disp');if(!el)return;
-  if(info?.acc){
-    el.innerHTML=`<div style="background:var(--accent-lt);border:1.5px solid #c4b5fd;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700">
-      🏦 <strong>${info.bank}</strong> &nbsp;|&nbsp; <strong style="font-family:'DM Mono',monospace">${info.acc}</strong> &nbsp;|&nbsp; <strong>${info.name}</strong></div>`;
-    document.getElementById('bank-acc').value=info.acc;document.getElementById('bank-name').value=info.name;document.getElementById('bank-bank').value=info.bank;
-    generateQR('my-qr-wrap',info,`Chuyển khoản cho: ${info.name}`,'var(--accent)');
-  } else el.innerHTML='';
-}
-function renderCourtDisp(){
-  const info=state.courtInfo,el=document.getElementById('court-disp');if(!el)return;
-  if(info?.acc){
-    el.innerHTML=`<div style="background:var(--accent4-lt);border:1.5px solid #ffd6e8;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700">
-      🏟 <strong>${info.bank}</strong> &nbsp;|&nbsp; <strong style="font-family:'DM Mono',monospace">${info.acc}</strong> &nbsp;|&nbsp; <strong>${info.name}</strong></div>`;
-    document.getElementById('court-acc').value=info.acc;document.getElementById('court-name').value=info.name;document.getElementById('court-bank').value=info.bank;
-    generateQR('court-qr-wrap',info,'Thanh toán tiền sân','#ff7eb3');
-  } else el.innerHTML='';
-}
-function generateQR(wrapperId, info, label, color){
-  const wrap=document.getElementById(wrapperId);if(!wrap)return;
-  // VietQR format
-  const amount=0; // dynamic, user will fill
-  const qrData=`https://img.vietqr.io/image/${bankCodeMap(info.bank)}-${info.acc}-compact2.png?addInfo=${encodeURIComponent(label)}&accountName=${encodeURIComponent(info.name)}`;
-  wrap.innerHTML=`<div class="qr-box">
-    <img src="${qrData}" width="180" height="180" style="border-radius:10px;border:2px solid var(--border)" onerror="this.parentElement.innerHTML='<canvas id=qr-canvas-${wrapperId}></canvas>'">
-    <div style="font-size:12px;font-weight:700;color:${color}">${label}</div>
-    <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--text)">${info.acc} · ${info.bank}</div>
-    <div style="font-size:11px;color:var(--muted);font-weight:600">${info.name}</div>
-  </div>`;
-  // Fallback QR if VietQR fails
-  setTimeout(()=>{
-    const canvas=document.getElementById(`qr-canvas-${wrapperId}`);
-    if(canvas && typeof QRCode !== 'undefined') QRCode.toCanvas(canvas,`${info.bank}|${info.acc}|${info.name}`,{width:160,margin:1});
-  },500);
-}
-function bankCodeMap(name){
-  const n=(name||'').toLowerCase();
-  if(n.includes('techcom')||n.includes('tcb')) return 'TCB';
-  if(n.includes('vietcom')||n.includes('vcb')) return 'VCB';
-  if(n.includes('mb')||n.includes('quân đội')||n.includes('quan doi')) return 'MB';
-  if(n.includes('acb')) return 'ACB';
-  if(n.includes('tpbank')||n.includes('tp bank')) return 'TPB';
-  if(n.includes('vpbank')||n.includes('vp bank')) return 'VPB';
-  if(n.includes('vietinbank')) return 'ICB';
-  if(n.includes('agribank')) return 'AGR';
-  if(n.includes('bidv')) return 'BIDV';
-  if(n.includes('sacombank')) return 'STB';
-  return 'TCB'; // default
+function renderBankDisp() {
+  const info = cd().bankInfo;
+  const el   = document.getElementById('bank-disp');
+  if (!el) return;
+  if (info?.acc) {
+    el.innerHTML = `<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:10px 14px;font-size:13px">
+      🏦 <strong>${info.bank}</strong> &nbsp;|&nbsp;
+      <strong style="font-family:'DM Mono',monospace">${info.acc}</strong> &nbsp;|&nbsp;
+      <strong>${info.name}</strong></div>`;
+    document.getElementById('bank-acc').value  = info.acc;
+    document.getElementById('bank-name').value = info.name;
+    document.getElementById('bank-bank').value = info.bank;
+  } else el.innerHTML = '';
 }
 
-// ═══════════════════════════════════════
-// RECEIPTS (local base64)
-// ═══════════════════════════════════════
-function handleReceiptUpload(event){
-  const files=[...event.target.files];
-  files.forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      receipts.push({id:Date.now()+Math.random(),dataUrl:e.target.result,name:file.name,month:curMonth});
-      saveReceipts();renderReceiptThumbs();
-    };
-    reader.readAsDataURL(file);
+// ═══════════════════════════════════════════════════
+// HISTORY + CHART
+// ═══════════════════════════════════════════════════
+function renderHistory() {
+  if (!document.getElementById('tab-history').classList.contains('active')) return;
+  const months = Object.keys(state.months).sort();
+  const tbody  = document.getElementById('hist-body');
+
+  if (!months.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="ei">📅</div>Chưa có dữ liệu</div></td></tr>`;
+    if (chartInst) { chartInst.destroy(); chartInst = null; }
+    return;
+  }
+
+  const chartLabels = [], chartData = [];
+  let tableHtml = '';
+
+  [...months].reverse().forEach(m => {
+    const data        = state.months[m];
+    const sessions    = data.sessions || [];
+    const ballCost    = data.ballCost  || 0;
+    let courtCoach=0, tipPark=0, grand=ballCost;
+    sessions.forEach(s => {
+      courtCoach += s.courtFee + s.coachFee;
+      tipPark    += s.tip + (s.parkTotal||0);
+      grand      += s.total;
+    });
+    tableHtml += `<tr class="split-row">
+      <td><strong>${fmtMonth(m)}</strong></td>
+      <td class="num">${sessions.length}</td>
+      <td class="num">${fmt(courtCoach)}</td>
+      <td class="num">${fmt(tipPark)}</td>
+      <td class="num">${fmtOrDash(ballCost)}</td>
+      <td class="num" style="color:var(--accent);font-weight:700">${fmt(grand)}</td>
+      <td style="text-align:right">
+        <button class="btn btn-s btn-sm" onclick="jumpToMonth('${m}')">Chi tiết ➔</button>
+      </td>
+    </tr>`;
   });
-  event.target.value='';
+  tbody.innerHTML = tableHtml;
+
+  // Chart data (ascending)
+  months.forEach(m => {
+    const d = state.months[m];
+    let total = d.ballCost||0;
+    (d.sessions||[]).forEach(s => total += s.total);
+    chartLabels.push(fmtMonth(m).replace('Tháng ',''));
+    chartData.push(total);
+  });
+  renderChart(chartLabels, chartData);
 }
-function saveReceipts(){try{localStorage.setItem('tennis_receipts_v1',JSON.stringify(receipts));}catch(e){alert('Ảnh quá lớn, không thể lưu. Hãy thử ảnh nhỏ hơn.');}}
-function renderReceiptThumbs(){
-  const el=document.getElementById('receipt-thumbs');if(!el)return;
-  const monthReceipts=receipts.filter(r=>r.month===curMonth||!r.month);
-  if(!monthReceipts.length){el.innerHTML='';return;}
-  el.innerHTML=monthReceipts.map(r=>`
-    <div class="receipt-thumb">
-      <img src="${r.dataUrl}" title="${r.name}" onclick="previewImg('${r.dataUrl}')">
-      <button class="del-btn" onclick="deleteReceipt(${r.id})">×</button>
-    </div>`).join('');
+
+function renderChart(labels, data) {
+  const ctx = document.getElementById('historyChart');
+  if (!ctx) return;
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  Chart.defaults.color            = '#7d8590';
+  Chart.defaults.font.family      = "'DM Sans', sans-serif";
+  chartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets:[{ label:'Tổng chi phí', data, backgroundColor:'rgba(230,200,74,.35)', borderColor:'#e6c84a', borderWidth:1, borderRadius:5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => new Intl.NumberFormat('vi-VN').format(ctx.parsed.y)+' VNĐ' } }
+      },
+      scales: {
+        y: { beginAtZero:true, grid:{ color:'rgba(48,54,61,.5)' }, ticks:{ callback: v => (v/1000)+'k' } },
+        x: { grid:{ display:false } }
+      }
+    }
+  });
 }
-function deleteReceipt(id){receipts=receipts.filter(r=>r.id!==id);saveReceipts();renderReceiptThumbs();}
-function previewImg(src){document.getElementById('img-modal-src').src=src;document.getElementById('img-modal').style.display='flex';}
 
-// ═══════════════════════════════════════
-// SUMMARY PDF
-// ═══════════════════════════════════════
-function renderSummaryPDF(){
-  if(!document.getElementById('tab-summary').classList.contains('active'))return;
-  const totals=calcSplit();
-  const active=Object.entries(totals).filter(([,v])=>v.sessions>0||v.ball>0).sort((a,b)=>b[1].total-a[1].total);
-  const payments=cd().payments;
-  const sessions=cd().sessions;
-  const grandTotal=active.reduce((s,[,v])=>s+v.total,0);
-  const info=state.bankInfo||{};
-  const courtInfo=state.courtInfo||{};
+function jumpToMonth(m) {
+  curMonth    = m;
+  dpViewMonth = m;
+  sw('split');
+}
 
-  const vietQRUrl=info.acc?`https://img.vietqr.io/image/${bankCodeMap(info.bank)}-${info.acc}-compact2.png?addInfo=${encodeURIComponent(fmtMonth(curMonth))}&accountName=${encodeURIComponent(info.name||'')}`:null;
+// ═══════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════
+function exportData() {
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `tennis_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (imported.members && imported.months) {
+        state = imported;
+        if (!state.masterData?.length) state.masterData = DEFAULT_MASTER;
+        save(); render(); alert('Nhập dữ liệu thành công!');
+      } else alert('File không hợp lệ!');
+    } catch { alert('Lỗi đọc file!'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
 
-  const personRows=active.map(([name,v])=>`
-    <div class="pdf-person-row">
-      <div>
-        <div class="pdf-person-name">${name}</div>
-        <div style="font-size:12px;color:var(--muted);font-weight:600">${v.sessions} buổi${v.ball?' + banh':''}${payments[name]?' · ✓ Đã đóng':''}</div>
-      </div>
-      <div class="pdf-person-amount">${fmt(Math.round(v.total))}</div>
-    </div>`).join('');
-
-  const sessionRows=sessions.map(s=>{
-    const n=s.players.length,cpp=(s.courtFee+s.coachFee)/n,tpp=s.tip/n,ppp=(s.parkTotal||0)/n;
-    return `<div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div>
-          <span style="font-weight:800;color:var(--accent)">${fmtDate(s.date)} ${s.day}</span>
-          <span style="margin-left:8px;font-size:13px;color:var(--muted)">${s.time}</span>
-          <span class="tag ${s.hasCoach?'tc':'tnc'}" style="margin-left:6px">${s.hasCoach?'Có thầy':'Không thầy'}</span>
-        </div>
-        <span style="font-family:'DM Mono',monospace;font-weight:800;color:var(--accent)">${fmt(s.total)}</span>
-      </div>
-      <table style="width:100%;font-size:12px"><thead><tr>
-        <th style="text-align:left;padding:4px 8px;color:var(--muted);font-size:11px">Người chơi</th>
-        <th style="text-align:right;padding:4px 8px;color:var(--muted);font-size:11px">Sân+Thầy</th>
-        <th style="text-align:right;padding:4px 8px;color:var(--muted);font-size:11px">Tip</th>
-        <th style="text-align:right;padding:4px 8px;color:var(--muted);font-size:11px">Xe</th>
-        <th style="text-align:right;padding:4px 8px;color:var(--accent);font-size:11px">Cộng</th>
-      </tr></thead><tbody>
-      ${s.players.map(p=>`<tr>
-        <td style="padding:3px 8px;font-weight:700">${p}</td>
-        <td style="text-align:right;padding:3px 8px;font-family:'DM Mono',monospace">${fmt(Math.round(cpp))}</td>
-        <td style="text-align:right;padding:3px 8px;font-family:'DM Mono',monospace">${tpp?fmt(Math.round(tpp)):'—'}</td>
-        <td style="text-align:right;padding:3px 8px;font-family:'DM Mono',monospace">${ppp?fmt(Math.round(ppp)):'—'}</td>
-        <td style="text-align:right;padding:3px 8px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:800">${fmt(Math.round(cpp+tpp+ppp))}</td>
-      </tr>`).join('')}
-      </tbody></table></div>`;
-  }).join('');
-
-  document.getElementById('pdf-preview').innerHTML=`
-    <div class="pdf-header">
-      <div style="font-size:28px;margin-bottom:6px">🎾</div>
-      <h1>Bảng Quyết Toán Tennis</h1>
-      <p>${fmtMonth(curMonth)} &nbsp;·&nbsp; Tổng: <strong>${fmt(grandTotal)} VNĐ</strong> &nbsp;·&nbsp; ${sessions.length} buổi tập</p>
-    </div>
-
-    <div class="pdf-section">
-      <h3>💰 Số tiền từng người cần đóng</h3>
-      ${personRows}
-      <div style="background:var(--accent-lt);border:2px solid var(--accent);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-        <span style="font-weight:800;font-size:15px;color:var(--accent)">📊 TỔNG CỘNG</span>
-        <span style="font-family:'DM Mono',monospace;font-size:20px;font-weight:800;color:var(--accent)">${fmt(grandTotal)} VNĐ</span>
-      </div>
-    </div>
-
-    ${info.acc?`
+// ═══════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
