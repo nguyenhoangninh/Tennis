@@ -1245,48 +1245,48 @@ function makeVietQR(info, memo) {
   return 'https://img.vietqr.io/image/' + bank + '-' + info.acc + '-compact2.png?addInfo=' + encodeURIComponent(memo||'Tennis') + '&accountName=' + encodeURIComponent(info.name||'');
 }
 
-function renderQRBox(wrapperId, info, label, color) {
+function renderQRBox(wrapperId, info, label, color, borderColor) {
   const wrap = document.getElementById(wrapperId);
   if (!wrap || !info?.acc) { if(wrap) wrap.innerHTML=''; return; }
   const qrSrc = makeVietQR(info, label);
-  wrap.innerHTML = `<div class="qr-card" style="border-color:${color}30; width: fit-content; margin-top: 12px;">
-    <img src="${qrSrc}" width="160" height="160"
-      onerror="this.outerHTML='<div style=\'width:160px;height:160px;background:#f1f5f9;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:600;\'>QR không tải được</div>'"
+  
+  // Thiết kế thẻ hiển thị ngang: Ảnh bên trái, Text bên phải
+  wrap.innerHTML = `<div style="display:flex; align-items:center; gap:14px; background:#fff; border:1.5px solid ${borderColor}; padding:10px; border-radius:12px;">
+    <img src="${qrSrc}" width="80" height="80" style="border-radius:8px; border:1px solid var(--border);"
+      onerror="this.outerHTML='<div style=\\'width:80px;height:80px;background:#f8fafc;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;border:1px solid var(--border)\\'>Lỗi QR</div>'"
     >
-    <div class="qr-label" style="color:${color}; margin-top:8px;">${label}</div>
-    <div class="qr-sub-acc" style="font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin-top:2px;">${info.acc}</div>
-    <div class="qr-sub-desc" style="font-size:11px;color:var(--muted);margin-top:2px;">${info.bank} · ${info.name}</div>
+    <div style="flex:1; overflow:hidden;">
+      <div style="font-family:'DM Mono',monospace; font-size:16px; font-weight:800; color:var(--text); letter-spacing:0.5px;">${info.acc}</div>
+      <div style="font-size:14px; font-weight:800; color:${color}; margin-top:2px;">${info.bank}</div>
+      <div style="font-size:12px; font-weight:600; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${info.name}</div>
+    </div>
   </div>`;
 }
 
 function renderBankDisp() {
   const info = state.bankInfo || cd().bankInfo;
-  const el   = document.getElementById('bank-disp');
-  if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div class="info-banner green">
-      💳 ${info.bank} <span class="divider">|</span> <strong style="font-family:'DM Mono',monospace;font-size:15px">${info.acc}</strong> <span class="divider">|</span> ${info.name}
-    </div>`;
     document.getElementById('bank-acc').value  = info.acc;
     document.getElementById('bank-name').value = info.name;
     document.getElementById('bank-bank').value = info.bank;
-    renderQRBox('my-qr-wrap', info, 'Chuyển khoản tennis', 'var(--accent)');
-  } else el.innerHTML = '';
+    renderQRBox('my-qr-wrap', info, 'Của Tôi', 'var(--accent)', '#a7f3d0');
+  } else {
+    const wrap = document.getElementById('my-qr-wrap');
+    if(wrap) wrap.innerHTML = '';
+  }
 }
 
 function renderCourtDisp() {
   const info = state.courtInfo;
-  const el   = document.getElementById('court-disp');
-  if (!el) return;
   if (info?.acc) {
-    el.innerHTML = `<div class="info-banner blue">
-      🏟 ${info.bank} <span class="divider">|</span> <strong style="font-family:'DM Mono',monospace;font-size:15px">${info.acc}</strong> <span class="divider">|</span> ${info.name}
-    </div>`;
     document.getElementById('court-acc').value  = info.acc;
     document.getElementById('court-name').value = info.name;
     document.getElementById('court-bank').value = info.bank;
-    renderQRBox('court-qr-wrap', info, 'Thanh toán tiền sân', 'var(--accent2)');
-  } else { el.innerHTML = ''; }
+    renderQRBox('court-qr-wrap', info, 'Chủ Sân', 'var(--accent2)', '#bfdbfe');
+  } else {
+    const wrap = document.getElementById('court-qr-wrap');
+    if(wrap) wrap.innerHTML = '';
+  }
 }
 
 // ═══════════════════════════════════════════════════
