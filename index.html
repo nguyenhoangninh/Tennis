@@ -497,8 +497,16 @@ function init() {
 }
 
 function ensureMonth(m) {
-  if (!state.months) state.months = {};
-  if (!state.months[m]) state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[], bankInfo:{} };
+ if (!state.months) state.months = {};
+  if (!state.months[m]) {
+    state.months[m] = { sessions:[], payments:{}, ballCost:0, ballPlayers:[], bankInfo:{} };
+  } else {
+    // Ép tạo lại các thư mục nếu bị Firebase xóa do rỗng
+    if (!state.months[m].payments) state.months[m].payments = {};
+    if (!state.months[m].sessions) state.months[m].sessions = [];
+    if (!state.months[m].ballPlayers) state.months[m].ballPlayers = [];
+    if (!state.months[m].bankInfo) state.months[m].bankInfo = {};
+  }
 }
 function cd() { ensureMonth(curMonth); return state.months[curMonth]; }
 function ym(y, m, d) {
@@ -1070,7 +1078,14 @@ function renderPayments() {
     </div>`).join('');
   renderBankDisp();
 }
-function togPay(name) { cd().payments[name] = !cd().payments[name]; save(); renderPayments(); renderSplit(); }
+function togPay(name) { 
+ const monthData = cd();
+  if (!monthData.payments) monthData.payments = {}; // Chốt chặn an toàn thứ 2
+  monthData.payments[name] = !monthData.payments[name]; 
+  save(); 
+  renderPayments(); 
+  renderSplit(); 
+}
 function saveBankInfo() {
   cd().bankInfo = {
     acc:  document.getElementById('bank-acc').value.trim(),
