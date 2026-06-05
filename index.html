@@ -370,58 +370,25 @@ tr:hover td{background:#f8fafc;}
   </div>
  
 
- <div class="sec mt">🧾 Quản Lý Chứng Từ / Hóa Đơn</div>
+  <div class="sec">🧾 Chứng Từ Thanh Toán</div>
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-      <p style="color:var(--muted); font-size:13px; font-weight:600; margin:0;">
-        Lưu lại hóa đơn tiền sân, tiền banh, mua sắm... (Dữ liệu lưu cục bộ)
-      </p>
-      <button class="btn btn-p btn-sm" onclick="openReceiptModal()">+ Thêm Chứng Từ</button>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:14px;font-weight:600">
+      Upload ảnh biên lai: thanh toán tiền sân, tiền banh, hoặc chuyển khoản từ thành viên...
+    </p>
+    <div onclick="document.getElementById('receipt-input').click()"
+      style="border:1.5px dashed #cbd5e1;border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:#f8fafc;margin-bottom:16px;"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.background='#ecfdf5'"
+      onmouseout="this.style.borderColor='#cbd5e1';this.style.background='#f8fafc'">
+      <input type="file" id="receipt-input" accept="image/*" multiple onchange="handleReceiptUpload(event)" style="display:none">
+      <div style="font-size:28px;margin-bottom:8px">📸</div>
+      <div style="font-weight:800;color:var(--accent);font-family:'Nunito',sans-serif;font-size:14px;">Nhấn để chọn ảnh</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;font-weight:600">JPG, PNG — lưu cục bộ trên trình duyệt</div>
     </div>
-    
-    <!-- Danh sách hóa đơn sẽ hiển thị ở đây -->
-    <div id="receipt-thumbs" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px;"></div>
-  </div>
-<!-- RECEIPT MODAL (THÊM/SỬA CHỨNG TỪ) -->
-<div id="receipt-modal" class="moverlay" style="display:none" onclick="closeReceiptModal(event)">
-  <div class="modal" style="max-width:500px;" onclick="event.stopPropagation()">
-    <div class="mtitle" id="rm-title">🧾 Thêm Chứng Từ</div>
-    <input type="hidden" id="rm-id">
-    
-    <div class="frow">
-      <div class="fg w">
-        <label>Nội dung thanh toán</label>
-        <input type="text" id="rm-desc" placeholder="VD: Trả tiền sân tháng 6, Mua 2 hộp banh...">
-      </div>
-    </div>
-    <div class="frow">
-      <div class="fg w">
-        <label>Số tiền giao dịch (VNĐ)</label>
-        <input type="number" id="rm-amount" placeholder="VD: 500000" step="10000">
-      </div>
-    </div>
-    
-    <div class="fg" style="margin-top:16px;">
-      <label>Hình chụp / Biên lai</label>
-      <div id="rm-upload-box" onclick="document.getElementById('rm-file').click()" style="border:1.5px dashed var(--accent2); background:#eff6ff; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:.2s;">
-        <input type="file" id="rm-file" accept="image/*" onchange="handleRMFile(event)" style="display:none">
-        <div style="font-size:24px; margin-bottom:4px;">📸</div>
-        <div style="font-weight:700; color:var(--accent2); font-family:'Nunito',sans-serif; font-size:13px;">Nhấn để tải ảnh lên</div>
-      </div>
-      
-      <div id="rm-preview-wrap" style="display:none; text-align:center; background:var(--surface2); padding:10px; border-radius:12px; border:1px solid var(--border);">
-         <img id="rm-preview" src="" style="max-height:180px; max-width:100%; border-radius:8px; border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,0.1); cursor:pointer;" onclick="document.getElementById('rm-file').click()" title="Nhấn để đổi ảnh khác">
-         <br>
-         <button class="btn btn-d btn-sm" style="margin-top:12px;" onclick="removeRMFile()">✕ Xóa ảnh này</button>
-      </div>
-    </div>
-    
-    <div class="mact" style="margin-top:24px;">
-      <button class="btn btn-s" onclick="document.getElementById('receipt-modal').style.display='none'">Hủy Bỏ</button>
-      <button class="btn btn-p" onclick="saveReceipt()">💾 Lưu Chứng Từ</button>
-    </div>
+    <div id="receipt-thumbs" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
   </div>
 </div>
+<!-- ============================================== -->
+
 <!-- SUMMARY MODAL -->
 <div id="summary-modal" class="moverlay" style="display:none" onclick="closeSummaryModal(event)">
   <div class="modal" style="max-width:800px;padding:28px" onclick="event.stopPropagation()">
@@ -553,154 +520,28 @@ let state = {
   bankInfo:   {},
   courtInfo:  {}
 };
-// ═══════════════════════════════════════════════════
-// RECEIPTS (SỔ QUẢN LÝ CHỨNG TỪ - LOCAL STORAGE)
-// ═══════════════════════════════════════════════════
-let tempReceiptBase64 = "";
-
-function openReceiptModal(id) {
-  const m = document.getElementById('receipt-modal');
-  document.getElementById('rm-id').value = id || '';
-  
-  if (id) {
-    document.getElementById('rm-title').textContent = '✏️ Sửa Chứng Từ';
-    const r = receipts.find(x => x.id === id);
-    if(r) {
-      document.getElementById('rm-desc').value = r.desc || '';
-      document.getElementById('rm-amount').value = r.amount || '';
-      tempReceiptBase64 = r.dataUrl || '';
-      if (tempReceiptBase64) {
-        document.getElementById('rm-preview').src = tempReceiptBase64;
-        document.getElementById('rm-preview-wrap').style.display = 'block';
-        document.getElementById('rm-upload-box').style.display = 'none';
-      } else {
-        removeRMFile();
-      }
-    }
-  } else {
-    document.getElementById('rm-title').textContent = '🧾 Thêm Chứng Từ Mới';
-    document.getElementById('rm-desc').value = '';
-    document.getElementById('rm-amount').value = '';
-    removeRMFile();
-  }
-  m.style.display = 'flex';
+// Receipts stored locally only (base64 too large for Firebase)
+let receipts = [];
+function saveReceipts() {
+  try { localStorage.setItem('tennis_receipts_v1', JSON.stringify(receipts)); } catch(e) {}
 }
-
-function closeReceiptModal(e) {
-  if(!e || e.target.id === 'receipt-modal') document.getElementById('receipt-modal').style.display = 'none';
+function loadReceipts() {
+  try { receipts = JSON.parse(localStorage.getItem('tennis_receipts_v1')||'[]'); } catch(e) { receipts=[]; }
 }
+const DEFAULT_MASTER = [
+  { id:1, name:'Sáng thường (05h-08h)',   court:120000, coach:200000, tip:50000 },
+  { id:2, name:'Ngày thường (08h-17h)',   court:100000, coach:200000, tip:50000 },
+  { id:3, name:'Tối thường (17h-22h)',    court:180000, coach:250000, tip:50000 },
+  { id:4, name:'Sáng cuối tuần (05-08h)',court:150000, coach:250000, tip:50000 },
+  { id:5, name:'Ngày cuối tuần (08-17h)',court:150000, coach:250000, tip:50000 },
+  { id:6, name:'Tối cuối tuần (17-22h)', court:200000, coach:250000, tip:50000 }
+];
 
-function handleRMFile(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-     // THUẬT TOÁN NÉN ẢNH TỰ ĐỘNG
-     const img = new Image();
-     img.onload = () => {
-       const canvas = document.createElement('canvas');
-       let MAX_WIDTH = 800; // Nén ảnh xuống tối đa 800px để chống tràn RAM
-       let scale = MAX_WIDTH / img.width;
-       if (scale > 1) scale = 1;
-       canvas.width = img.width * scale;
-       canvas.height = img.height * scale;
-       const ctx = canvas.getContext('2d');
-       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-       
-       tempReceiptBase64 = canvas.toDataURL('image/jpeg', 0.65); // Nén JPEG chất lượng 65%
-       document.getElementById('rm-preview').src = tempReceiptBase64;
-       document.getElementById('rm-preview-wrap').style.display = 'block';
-       document.getElementById('rm-upload-box').style.display = 'none';
-     };
-     img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeRMFile() {
-  tempReceiptBase64 = "";
-  document.getElementById('rm-file').value = "";
-  document.getElementById('rm-upload-box').style.display = 'block';
-  document.getElementById('rm-preview-wrap').style.display = 'none';
-}
-
-function saveReceipt() {
-  const id = document.getElementById('rm-id').value;
-  const desc = document.getElementById('rm-desc').value.trim();
-  const amount = pn(document.getElementById('rm-amount').value);
-
-  if (!desc) { alert("Vui lòng nhập nội dung thanh toán!"); return; }
-
-  if (id) {
-    const r = receipts.find(x => x.id == id);
-    if (r) {
-      r.desc = desc;
-      r.amount = amount;
-      r.dataUrl = tempReceiptBase64;
-    }
-  } else {
-    receipts.push({
-      id: Date.now(),
-      month: curMonth,
-      desc: desc,
-      amount: amount,
-      dataUrl: tempReceiptBase64
-    });
-  }
-  saveReceipts();
-  document.getElementById('receipt-modal').style.display = 'none';
-  renderReceiptThumbs();
-}
-
-function renderReceiptThumbs() {
-  const el = document.getElementById('receipt-thumbs');
-  if (!el) return;
-  const monthR = receipts.filter(r => !r.month || r.month === curMonth);
-  
-  if (!monthR.length) { 
-    el.innerHTML = '<div class="empty" style="grid-column: 1 / -1; padding:30px;"><div class="ei" style="font-size:32px;">🧾</div>Chưa có chứng từ nào trong tháng này</div>'; 
-    return; 
-  }
-  
-  el.innerHTML = monthR.map(r => `
-    <div style="display:flex; gap:14px; background:#ffffff; border:1px solid var(--border); border-radius:14px; padding:14px; align-items:center; box-shadow:0 4px 12px rgba(0,0,0,0.03); transition:.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-      
-      <!-- Hình Thumbnail -->
-      <div style="flex-shrink:0;">
-        ${r.dataUrl 
-          ? `<img src="${r.dataUrl}" style="width:72px; height:72px; object-fit:cover; border-radius:10px; border:1px solid var(--border); cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.1);" onclick="previewImg(${r.id})" title="Nhấn để phóng to">` 
-          : `<div style="width:72px; height:72px; background:#f8fafc; border-radius:10px; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; font-size:20px;">📄</div>`
-        }
-      </div>
-      
-      <!-- Thông tin -->
-      <div style="flex:1; overflow:hidden;">
-        <div style="font-family:'Nunito',sans-serif; font-size:14px; font-weight:800; color:var(--text); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;" title="${r.desc}">${r.desc}</div>
-        <div style="font-family:'DM Mono',monospace; font-size:16px; font-weight:800; color:var(--accent); margin-top:6px;">${fmt(r.amount)} đ</div>
-      </div>
-      
-      <!-- Nút Hành Động -->
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn btn-w btn-sm" style="padding:5px 10px;" onclick="openReceiptModal(${r.id})" title="Sửa">✏️</button>
-        <button class="btn btn-d btn-sm" style="padding:5px 10px;" onclick="deleteReceipt(${r.id})" title="Xóa">✕</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function deleteReceipt(id) {
-  if(!confirm("Bạn có chắc muốn xóa chứng từ này?")) return;
-  receipts = receipts.filter(r => r.id !== id);
-  saveReceipts(); 
-  renderReceiptThumbs();
-}
-
-function previewImg(id) {
-  const r = receipts.find(x => x.id === id);
-  if (!r || !r.dataUrl) return;
-  document.getElementById('img-modal-src').src = r.dataUrl;
-  document.getElementById('img-modal').style.display = 'flex';
-}
+let curMonth   = '';
+let selDates   = new Set();
+let dpViewMonth= '';
+let chartInst  = null;
+let db         = null;
 
 // Hàm chống lỗi cấu trúc Array biến thành Object trên Firebase
 function sanitizeFirebaseState(cloudData) {
