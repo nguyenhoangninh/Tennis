@@ -1840,16 +1840,27 @@ function buildPdfHtml() {
   const GREEN = '#10b981', BLUE = '#3b82f6', GRAY = '#64748b',
         DARK = '#1e293b', LGRAY = '#f8fafc', BORDER = '#e2e8f0';
 
-  // Bảng tóm tắt từng người
+  // Tính tổng từng cột cho dòng footer
+  let sumCourt=0, sumTip=0, sumPark=0, sumBall=0;
+  active.forEach(([,v]) => { sumCourt+=v.courtCoach; sumTip+=v.tip; sumPark+=v.parking; sumBall+=v.ball; });
+
+  // Ma trận chi phí — mỗi dòng = 1 người, mỗi cột = 1 loại chi phí
   const personRows = active.map(([name, v]) => {
     const isPaid = payments[name];
+    const tdNum = (val) => val > 0
+      ? `<td style="padding:10px 12px;text-align:right;font-family:monospace;font-size:13px;font-weight:700">${fmt(Math.round(val))}</td>`
+      : `<td style="padding:10px 12px;text-align:right;color:${GRAY}">—</td>`;
     return `<tr style="border-bottom:1px solid ${BORDER}">
-      <td style="padding:10px 12px;font-weight:800;font-size:14px">${name}</td>
-      <td style="padding:10px 12px;color:${GRAY};font-size:12px">${v.sessions} buổi${v.ball?' + banh':''}</td>
-      <td style="padding:10px 12px;font-family:monospace;font-size:15px;font-weight:800;color:${GREEN};text-align:right">${fmt(Math.round(v.total))} đ</td>
-      <td style="padding:10px 12px;text-align:center">
-        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;background:${isPaid?'#dcfce7':'#fef2f2'};color:${isPaid?'#166534':'#991b1b'}">${isPaid?'✓ Đã đóng':'⏳ Chưa'}</span>
+      <td style="padding:10px 12px;font-weight:800;font-size:14px;white-space:nowrap">
+        ${name}
+        <span style="font-size:11px;color:${GRAY};font-weight:600;margin-left:6px">(${v.sessions} buổi)</span>
+        <span style="margin-left:8px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:800;background:${isPaid?'#dcfce7':'#fef2f2'};color:${isPaid?'#166534':'#f43f5e'}">${isPaid?'✓ Đã đóng':'⏳ Chưa'}</span>
       </td>
+      ${tdNum(v.courtCoach)}
+      ${tdNum(v.tip)}
+      ${tdNum(v.parking)}
+      ${tdNum(v.ball)}
+      <td style="padding:10px 12px;text-align:right;font-family:monospace;font-size:15px;font-weight:900;color:${GREEN}">${fmt(Math.round(v.total))}</td>
     </tr>`;
   }).join('');
 
@@ -1930,21 +1941,28 @@ function buildPdfHtml() {
       <p style="color:${GRAY};font-size:13px;font-weight:600">${month} &nbsp;·&nbsp; ${sessions.length} buổi tập &nbsp;·&nbsp; Tổng: <strong style="color:${DARK}">${fmt(grandTotal)} VNĐ</strong></p>
     </div>
 
-    <!-- BẢNG TỔNG HỢP -->
-    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:0 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">💰 Số tiền từng người đóng</h3>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;border:1px solid ${BORDER};border-radius:8px;overflow:visible">
-      <thead><tr style="background:${LGRAY}">
-        <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">THÀNH VIÊN</th>
-        <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">CHI TIẾT</th>
-        <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700">SỐ TIỀN</th>
-        <th style="padding:10px 12px;text-align:center;color:${GRAY};font-size:11px;font-weight:700">TRẠNG THÁI</th>
-      </tr></thead>
+    <!-- MA TRẬN CHI PHÍ -->
+    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:0 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">💰 Ma Trận Chi Phí</h3>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;border:1px solid ${BORDER}">
+      <thead>
+        <tr style="background:${LGRAY};border-bottom:2px solid ${BORDER}">
+          <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700;letter-spacing:.05em">THÀNH VIÊN</th>
+          <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700;letter-spacing:.05em">💰 SÂN (+THẦY)</th>
+          <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700;letter-spacing:.05em">🫶 TIP</th>
+          <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700;letter-spacing:.05em">🚗 GỬI XE</th>
+          <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700;letter-spacing:.05em">🎾 TIỀN BANH</th>
+          <th style="padding:10px 12px;text-align:right;color:${GREEN};font-size:11px;font-weight:700;letter-spacing:.05em">TỔNG PHẢI ĐÓNG</th>
+        </tr>
+      </thead>
       <tbody>${personRows}</tbody>
       <tfoot>
         <tr style="background:#ecfdf5;border-top:2px solid ${GREEN}">
-          <td colspan="2" style="padding:12px;font-weight:900;font-size:14px">📊 TỔNG CỘNG</td>
-          <td style="padding:12px;text-align:right;font-family:monospace;font-size:18px;font-weight:900;color:${GREEN}">${fmt(grandTotal)} đ</td>
-          <td></td>
+          <td style="padding:12px;font-weight:900;font-size:13px">📊 TỔNG CHI PHÍ</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-weight:800;font-size:13px">${fmt(Math.round(sumCourt))}</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-weight:800;font-size:13px">${fmt(Math.round(sumTip))}</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-weight:800;font-size:13px">${sumPark > 0 ? fmt(Math.round(sumPark)) : '0'}</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-weight:800;font-size:13px">${sumBall > 0 ? fmt(Math.round(sumBall)) : '0'}</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-size:18px;font-weight:900;color:${GREEN}">${fmt(grandTotal)}</td>
         </tr>
       </tfoot>
     </table>
@@ -1952,8 +1970,8 @@ function buildPdfHtml() {
     <!-- QR -->
     ${qrSection}
 
-    <!-- CHI TIẾT BUỔI -->
-    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:18px 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">🗒 Chi Tiết Theo Từng Buổi</h3>
+    <!-- CHI TIẾT BUỔI — bắt đầu trang mới -->
+    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:18px 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px;page-break-before:always;break-before:page;padding-top:18px">🗒 Chi Tiết Theo Từng Buổi</h3>
     ${sesRows || '<p style="color:'+GRAY+';padding:10px;font-size:13px">Chưa có buổi nào.</p>'}
 
     <!-- FOOTER -->
