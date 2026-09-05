@@ -179,13 +179,26 @@ tr:hover td{background:#f8fafc;}
 .pdf-total-row{background:#ecfdf5;border-color:var(--accent);border-width:2px;}
 .qr-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:12px 0;}
 
-@media print{
-  body > *:not(#summary-modal){display:none!important;}
-  #summary-modal{position:fixed!important;inset:0!important;display:flex!important;background:#fff!important;padding:0!important;}
-  .moverlay{background:#fff!important;backdrop-filter:none!important;}
-  .modal{max-width:100%!important;width:100%!important;border:none!important;box-shadow:none!important;border-radius:0!important;}
-  .mtitle,.modal > div:first-child > *:not(#pdf-content){display:none!important;}
+/* ═══ PRINT / PDF ═══ */
+@media print {
+  /* Ẩn tất cả, chỉ hiện vùng in */
+  body > * { display: none !important; }
+  #print-area {
+    display: block !important;
+    position: fixed; inset: 0;
+    background: #fff;
+    padding: 24px 28px;
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-size: 13px;
+    color: #1e293b;
+  }
+  #print-area * { box-shadow: none !important; }
+  /* Phân trang đẹp */
+  .print-session-block { page-break-inside: avoid; }
+  .print-page-break { page-break-before: always; }
 }
+/* Vùng in ẩn khi không print */
+#print-area { display: none; }
 
 /* ══════════════════════════════════════
    LOGIN SCREEN
@@ -607,11 +620,13 @@ body:not(.logged-in) .moverlay { display: none !important; }
 
 <!-- SUMMARY MODAL -->
 <div id="summary-modal" class="moverlay" style="display:none" onclick="closeSummaryModal(event)">
-  <div class="modal" style="max-width:800px;padding:28px" onclick="event.stopPropagation()">
-    <div class="mtitle">📄 Bảng Tổng Hợp Tháng</div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <button class="btn btn-p btn-sm" onclick="window.print()">🖨️ In / Lưu PDF</button>
-      <button class="btn btn-s btn-sm" onclick="closeSummaryModal()">✕ Đóng</button>
+  <div class="modal" style="max-width:860px;padding:28px;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div class="mtitle" style="margin-bottom:0">📄 Bảng Tổng Hợp Tháng</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-p btn-sm" onclick="doPrint()">🖨️ In / Xuất PDF</button>
+        <button class="btn btn-s btn-sm" onclick="closeSummaryModal()">✕ Đóng</button>
+      </div>
     </div>
     <div id="pdf-content"></div>
   </div>
@@ -1759,82 +1774,167 @@ function closeSummaryModal(e) {
     document.getElementById('summary-modal').style.display = 'none';
 }
 
-function buildSummaryContent() {
+// ── Tạo nội dung HTML cho PDF (dùng màu cố định thay var() để in đúng) ──
+function buildPdfHtml() {
   const totals     = calcSplit();
-  const active     = Object.entries(totals).filter(function(e){return e[1].sessions>0||e[1].ball>0;}).sort(function(a,b){return b[1].total-a[1].total;});
+  const active     = Object.entries(totals)
+    .filter(e => e[1].sessions > 0 || e[1].ball > 0)
+    .sort((a,b) => b[1].total - a[1].total);
   const payments   = cd().payments || {};
   const sessions   = cd().sessions || [];
-  const grandTotal = active.reduce(function(s,e){return s+e[1].total;}, 0);
+  const grandTotal = active.reduce((s,e) => s + e[1].total, 0);
   const myInfo     = state.bankInfo  || {};
   const courtInfo  = state.courtInfo || {};
   const month      = fmtMonth(curMonth);
 
-  var personRows = active.map(function(entry) {
-    var name = entry[0], v = entry[1];
-    return '<div class="pdf-person-row ' + (payments[name]?'pdf-total-row':'') + '">' +
-      '<div><div style="font-weight:800;font-size:15px;font-family:Nunito,sans-serif">' + name + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);font-weight:600">' + v.sessions + ' buổi' + (v.ball?' + banh':'') + (payments[name]?' · ✓ Đã đóng':'') + '</div></div>' +
-      '<div class="pdf-amount">' + fmt(Math.round(v.total)) + ' đ</div></div>';
+  // Màu cố định (không dùng CSS var để in được)
+  const GREEN = '#10b981', BLUE = '#3b82f6', GRAY = '#64748b',
+        DARK = '#1e293b', LGRAY = '#f8fafc', BORDER = '#e2e8f0';
+
+  // Bảng tóm tắt từng người
+  const personRows = active.map(([name, v]) => {
+    const isPaid = payments[name];
+    return `<tr style="border-bottom:1px solid ${BORDER}">
+      <td style="padding:10px 12px;font-weight:800;font-size:14px">${name}</td>
+      <td style="padding:10px 12px;color:${GRAY};font-size:12px">${v.sessions} buổi${v.ball?' + banh':''}</td>
+      <td style="padding:10px 12px;font-family:monospace;font-size:15px;font-weight:800;color:${GREEN};text-align:right">${fmt(Math.round(v.total))} đ</td>
+      <td style="padding:10px 12px;text-align:center">
+        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;background:${isPaid?'#dcfce7':'#fef2f2'};color:${isPaid?'#166534':'#991b1b'}">${isPaid?'✓ Đã đóng':'⏳ Chưa'}</span>
+      </td>
+    </tr>`;
   }).join('');
 
-  var sesRows = sessions.map(function(s) {
-    var n = s.players.length;
-    var cpp = (s.courtFee+s.coachFee)/n, tpp = s.tip/n, ppp = (s.parkTotal||0)/n;
-    var rows = s.players.map(function(p) {
-      return '<tr><td style="padding:3px 6px;font-weight:700">' + p + '</td>' +
-        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + fmt(Math.round(cpp)) + '</td>' +
-        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + (tpp?fmt(Math.round(tpp)):'—') + '</td>' +
-        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace">' + (ppp?fmt(Math.round(ppp)):'—') + '</td>' +
-        '<td style="text-align:right;padding:3px 6px;font-family:DM Mono,monospace;color:var(--accent);font-weight:800">' + fmt(Math.round(cpp+tpp+ppp)) + '</td></tr>';
-    }).join('');
-    return '<div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-      '<div><strong style="color:var(--accent)">' + fmtDate(s.date) + ' ' + s.day + '</strong>' +
-      '<span style="margin-left:8px;color:var(--muted)">' + s.time + '</span>' +
-      '<span style="margin-left:6px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:' + (s.hasCoach?'#dbeafe':'#dcfce7') + ';color:' + (s.hasCoach?'#1d4ed8':'#166534') + '">' + (s.hasCoach?'Có thầy':'Không thầy') + '</span></div>' +
-      '<strong style="font-family:DM Mono,monospace;color:var(--accent)">' + fmt(s.total) + '</strong></div>' +
-      '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="color:var(--muted)">' +
-      '<th style="text-align:left;padding:3px 6px;font-weight:700">Người chơi</th>' +
-      '<th style="text-align:right;padding:3px 6px;font-weight:700">Sân+Thầy</th>' +
-      '<th style="text-align:right;padding:3px 6px;font-weight:700">Tip</th>' +
-      '<th style="text-align:right;padding:3px 6px;font-weight:700">Xe</th>' +
-      '<th style="text-align:right;padding:3px 6px;font-weight:700;color:var(--accent)">Cộng</th>' +
-      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+  // Chi tiết từng buổi
+  const sesRows = sessions.map(s => {
+    const n = s.players.length;
+    const cpp = (s.courtFee + s.coachFee) / n;
+    const tpp = s.tip / n;
+    const ppp = (s.parkTotal || 0) / n;
+    const playerRows = s.players.map(p => `
+      <tr style="border-bottom:1px solid ${BORDER}">
+        <td style="padding:6px 10px;font-weight:700">${p}</td>
+        <td style="padding:6px 10px;text-align:right;font-family:monospace">${fmt(Math.round(cpp))}</td>
+        <td style="padding:6px 10px;text-align:right;font-family:monospace">${tpp ? fmt(Math.round(tpp)) : '—'}</td>
+        <td style="padding:6px 10px;text-align:right;font-family:monospace">${ppp ? fmt(Math.round(ppp)) : '—'}</td>
+        <td style="padding:6px 10px;text-align:right;font-family:monospace;font-weight:800;color:${GREEN}">${fmt(Math.round(cpp+tpp+ppp))}</td>
+      </tr>`).join('');
+    return `<div class="print-session-block" style="margin-bottom:12px;border:1px solid ${BORDER};border-radius:8px;overflow:hidden">
+      <div style="background:${LGRAY};padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${BORDER}">
+        <div>
+          <strong style="color:${GREEN};font-size:13px">${fmtDate(s.date)} ${s.day}</strong>
+          <span style="margin-left:8px;color:${GRAY};font-size:12px">${s.time}</span>
+          <span style="margin-left:6px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:${s.hasCoach?'#dbeafe':'#dcfce7'};color:${s.hasCoach?'#1d4ed8':'#166534'}">${s.hasCoach?'Có thầy':'Không thầy'}</span>
+        </div>
+        <strong style="font-family:monospace;color:${GREEN};font-size:13px">${fmt(s.total)} đ</strong>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:${LGRAY}">
+          <th style="padding:5px 10px;text-align:left;color:${GRAY};font-weight:700">Người chơi</th>
+          <th style="padding:5px 10px;text-align:right;color:${GRAY};font-weight:700">Sân+Thầy</th>
+          <th style="padding:5px 10px;text-align:right;color:${GRAY};font-weight:700">Tip</th>
+          <th style="padding:5px 10px;text-align:right;color:${GRAY};font-weight:700">Xe</th>
+          <th style="padding:5px 10px;text-align:right;color:${GREEN};font-weight:700">Cộng</th>
+        </tr></thead>
+        <tbody>${playerRows}</tbody>
+      </table>
+    </div>`;
   }).join('');
 
-  var myQR = makeVietQR(myInfo, 'Tennis ' + curMonth);
-  var cQR  = makeVietQR(courtInfo, 'Tien san tennis');
-  var amounts = active.map(function(e) {
-    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #d1fae5;font-size:13px">' +
-      '<span style="font-weight:700">' + e[0] + '</span>' +
-      '<div style="text-align:right"><span style="font-family:DM Mono,monospace;font-weight:800;color:var(--accent)">' + fmt(Math.round(e[1].total)) + 'đ</span>' +
-      '<br><span style="font-size:10px;color:var(--muted);font-weight:600">Tennis ' + curMonth.split('-')[1] + '/' + curMonth.split('-')[0] + '</span></div></div>';
-  }).join('');
+  // QR codes
+  const myQR = makeVietQR(myInfo, 'Tennis ' + curMonth);
+  const cQR  = makeVietQR(courtInfo, 'Tien san tennis');
+  const amountList = active.map(([name, v]) =>
+    `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #d1fae5">
+      <span style="font-weight:700">${name}</span>
+      <div style="text-align:right">
+        <span style="font-family:monospace;font-weight:800;color:${GREEN}">${fmt(Math.round(v.total))} đ</span><br>
+        <span style="font-size:10px;color:${GRAY}">Tennis ${curMonth.split('-')[1]}/${curMonth.split('-')[0]}</span>
+      </div>
+    </div>`).join('');
 
-  var qrHtml = (myQR || cQR) ? (
-    '<div class="pdf-sec-title">📲 Quét mã chuyển khoản</div>' +
-    '<div class="qr-grid">' +
-    (myQR ? '<div class="qr-card" style="border-color:#a7f3d0"><img src="' + myQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #a7f3d0"><div class="qr-label">Chuyển cho: ' + (myInfo.name||'') + '</div><div class="qr-sub-acc" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + myInfo.acc + '</div><div class="qr-sub-desc">' + myInfo.bank + '</div></div>' : '') +
-    (cQR ? '<div class="qr-card" style="border-color:#bfdbfe"><img src="' + cQR + '" width="180" height="180" style="border-radius:10px;border:2px solid #bfdbfe"><div class="qr-label" style="color:#3b82f6">Thanh toán tiền sân</div><div class="qr-sub-acc" style="font-family:DM Mono,monospace;font-size:13px;font-weight:700">' + courtInfo.acc + '</div><div class="qr-sub-desc">' + courtInfo.bank + ' · ' + (courtInfo.name||'') + '</div></div>' : '') +
-    '<div style="flex:1;min-width:200px;background:#f0fdf4;border:2px solid #a7f3d0;border-radius:12px;padding:14px;align-self:flex-start">' +
-    '<div style="font-weight:800;color:var(--accent);margin-bottom:10px;font-family:Nunito,sans-serif">📋 Số tiền cần chuyển</div>' +
-    amounts + '</div></div>'
-  ) : '';
+  const qrSection = (myQR || cQR) ? `
+    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:18px 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">📲 Quét mã QR để chuyển khoản</h3>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin-bottom:16px">
+      ${myQR ? `<div style="text-align:center;padding:16px;background:#f0fdf4;border:2px solid #a7f3d0;border-radius:12px">
+        <img src="${myQR}" width="160" height="160" style="border-radius:8px;display:block;margin:0 auto">
+        <div style="margin-top:8px;font-weight:800;color:${GREEN};font-size:13px">Chuyển cho: ${myInfo.name||''}</div>
+        <div style="font-family:monospace;font-size:13px;font-weight:700;margin-top:2px">${myInfo.acc||''}</div>
+        <div style="font-size:11px;color:${GRAY};margin-top:2px">${myInfo.bank||''}</div>
+      </div>` : ''}
+      ${cQR ? `<div style="text-align:center;padding:16px;background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px">
+        <img src="${cQR}" width="160" height="160" style="border-radius:8px;display:block;margin:0 auto">
+        <div style="margin-top:8px;font-weight:800;color:${BLUE};font-size:13px">Thanh toán tiền sân</div>
+        <div style="font-family:monospace;font-size:13px;font-weight:700;margin-top:2px">${courtInfo.acc||''}</div>
+        <div style="font-size:11px;color:${GRAY};margin-top:2px">${courtInfo.bank||''} · ${courtInfo.name||''}</div>
+      </div>` : ''}
+      <div style="flex:1;min-width:180px;background:#f0fdf4;border:2px solid #a7f3d0;border-radius:12px;padding:14px">
+        <div style="font-weight:800;color:${GREEN};margin-bottom:10px;font-size:13px">📋 Số tiền cần chuyển</div>
+        ${amountList}
+      </div>
+    </div>` : '';
 
-  document.getElementById('pdf-content').innerHTML =
-    '<div class="pdf-hdr">' +
-    '<div style="font-size:28px;margin-bottom:6px">🎾</div>' +
-    '<h1>Quyết Toán Tennis</h1>' +
-    '<p>' + month + ' · ' + sessions.length + ' buổi tập · Tổng: <strong>' + fmt(grandTotal) + ' VNĐ</strong></p></div>' +
-    '<div class="pdf-sec-title">💰 Số tiền từng người đóng</div>' +
-    personRows +
-    '<div class="pdf-person-row pdf-total-row" style="margin-top:4px">' +
-    '<strong style="font-size:15px;font-family:Nunito,sans-serif">📊 TỔNG CỘNG</strong>' +
-    '<div class="pdf-amount" style="font-size:20px">' + fmt(grandTotal) + ' đ</div></div>' +
-    qrHtml +
-    '<div class="pdf-sec-title">🗒 Chi Tiết Theo Buổi</div>' +
-    (sesRows || '<p style="color:var(--muted);padding:10px;font-size:13px">Chưa có buổi nào</p>') +
-    '<div style="text-align:center;margin-top:18px;padding-top:14px;border-top:2px dashed var(--border);color:var(--muted);font-size:11px;font-weight:600">Tạo bởi 🎾 Tennis Manager · ' + new Date().toLocaleDateString('vi-VN') + '</div>';
+  return `
+    <!-- HEADER -->
+    <div style="text-align:center;padding:20px;background:linear-gradient(135deg,#ecfdf5,#eff6ff);border-radius:10px;margin-bottom:20px">
+      <div style="font-size:32px;margin-bottom:6px">🎾</div>
+      <h1 style="font-size:22px;font-weight:900;color:${GREEN};margin-bottom:4px">Quyết Toán Tennis</h1>
+      <p style="color:${GRAY};font-size:13px;font-weight:600">${month} &nbsp;·&nbsp; ${sessions.length} buổi tập &nbsp;·&nbsp; Tổng: <strong style="color:${DARK}">${fmt(grandTotal)} VNĐ</strong></p>
+    </div>
+
+    <!-- BẢNG TỔNG HỢP -->
+    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:0 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">💰 Số tiền từng người đóng</h3>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;border:1px solid ${BORDER};border-radius:8px;overflow:hidden">
+      <thead><tr style="background:${LGRAY}">
+        <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">THÀNH VIÊN</th>
+        <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">CHI TIẾT</th>
+        <th style="padding:10px 12px;text-align:right;color:${GRAY};font-size:11px;font-weight:700">SỐ TIỀN</th>
+        <th style="padding:10px 12px;text-align:center;color:${GRAY};font-size:11px;font-weight:700">TRẠNG THÁI</th>
+      </tr></thead>
+      <tbody>${personRows}</tbody>
+      <tfoot>
+        <tr style="background:#ecfdf5;border-top:2px solid ${GREEN}">
+          <td colspan="2" style="padding:12px;font-weight:900;font-size:14px">📊 TỔNG CỘNG</td>
+          <td style="padding:12px;text-align:right;font-family:monospace;font-size:18px;font-weight:900;color:${GREEN}">${fmt(grandTotal)} đ</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- QR -->
+    ${qrSection}
+
+    <!-- CHI TIẾT BUỔI -->
+    <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:18px 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">🗒 Chi Tiết Theo Từng Buổi</h3>
+    ${sesRows || '<p style="color:'+GRAY+';padding:10px;font-size:13px">Chưa có buổi nào.</p>'}
+
+    <!-- FOOTER -->
+    <div style="text-align:center;margin-top:20px;padding-top:14px;border-top:2px dashed ${BORDER};color:${GRAY};font-size:11px;font-weight:600">
+      Tạo bởi 🎾 Tennis Manager &nbsp;·&nbsp; ${new Date().toLocaleDateString('vi-VN')}
+    </div>`;
+}
+
+function buildSummaryContent() {
+  const html = buildPdfHtml();
+  // Hiện trong modal preview
+  document.getElementById('pdf-content').innerHTML = html;
+  // Chuẩn bị sẵn vùng in
+  document.getElementById('print-area').innerHTML = html;
+}
+
+function doPrint() {
+  // Đảm bảo print-area có nội dung mới nhất
+  document.getElementById('print-area').innerHTML = buildPdfHtml();
+  // Đợi ảnh QR load xong rồi mới in
+  const imgs = document.getElementById('print-area').querySelectorAll('img');
+  if (imgs.length === 0) { window.print(); return; }
+  let loaded = 0;
+  const tryPrint = () => { loaded++; if (loaded >= imgs.length) window.print(); };
+  imgs.forEach(img => {
+    if (img.complete) tryPrint();
+    else { img.onload = tryPrint; img.onerror = tryPrint; }
+  });
+  // Fallback: in sau 2 giây dù QR chưa load
+  setTimeout(() => window.print(), 2000);
 }
 
 // ══════════════════════════════════════════════════
@@ -1994,5 +2094,9 @@ checkAuthOnLoad();
 // init() sẽ được gọi sau khi đăng nhập thành công
 if (isLoggedIn()) init();
 </script>
+<!-- PRINT AREA — chỉ hiện khi in, ẩn bình thường -->
+<div id="print-area"></div>
+
+
 </body>
 </html>
