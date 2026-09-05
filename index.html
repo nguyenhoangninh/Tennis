@@ -28,6 +28,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 /* ── LAYOUT ── */
 header{background:var(--surface);box-shadow:0 2px 12px rgba(0,0,0,0.04);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:65px;position:sticky;top:0;z-index:100;}
+/* Khi Firebase help banner hiện, header tự đẩy xuống */
+#firebase-help ~ header { position: sticky; top: 0; }
 .logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:24px;color:var(--accent);display:flex;align-items:center;gap:8px;text-shadow: 1px 1px 0px rgba(16,185,129,0.1);}
 .month-nav{display:flex;align-items:center;gap:10px;}
 .month-nav button{background:var(--surface);border:2px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:16px;font-weight:bold;transition:.2s;}
@@ -184,9 +186,213 @@ tr:hover td{background:#f8fafc;}
   .modal{max-width:100%!important;width:100%!important;border:none!important;box-shadow:none!important;border-radius:0!important;}
   .mtitle,.modal > div:first-child > *:not(#pdf-content){display:none!important;}
 }
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#login-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #fdf4ff 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(16,185,129,0.15), 0 4px 20px rgba(0,0,0,0.08);
+  padding: 44px 40px;
+  width: 100%; max-width: 420px;
+  text-align: center;
+  animation: loginPop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes loginPop {
+  from { opacity:0; transform:scale(.88) translateY(20px); }
+  to   { opacity:1; transform:scale(1)  translateY(0); }
+}
+.login-logo { font-size: 52px; margin-bottom: 12px; }
+.login-title {
+  font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 26px;
+  color: var(--accent); margin-bottom: 4px;
+}
+.login-sub { color: var(--muted); font-size: 14px; font-weight: 600; margin-bottom: 32px; }
+.login-input-wrap {
+  position: relative; margin-bottom: 16px;
+}
+.login-input-wrap input {
+  width: 100%; padding: 14px 48px 14px 18px;
+  border: 2px solid var(--border); border-radius: 14px;
+  font-size: 18px; font-family: 'DM Mono', monospace;
+  letter-spacing: 3px; text-align: center;
+  transition: .2s; background: var(--surface2);
+}
+.login-input-wrap input:focus {
+  border-color: var(--accent); background: #fff;
+  box-shadow: 0 0 0 4px rgba(16,185,129,.15); outline: none;
+}
+.login-eye {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px;
+}
+.login-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff; border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif;
+  cursor: pointer; transition: .2s;
+  box-shadow: 0 4px 14px rgba(16,185,129,.35);
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,.45); }
+.login-btn:active { transform: translateY(0); }
+.login-error {
+  margin-top: 12px; padding: 10px 16px;
+  background: #fff0f3; border: 1.5px solid #fecdd3;
+  border-radius: 10px; color: var(--danger);
+  font-size: 13px; font-weight: 700;
+  display: none; animation: shake .4s;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.login-attempts {
+  margin-top: 8px; font-size: 12px; color: var(--muted); font-weight: 600;
+}
+.login-footer {
+  margin-top: 28px; padding-top: 20px; border-top: 1.5px dashed var(--border);
+  font-size: 12px; color: var(--muted); font-weight: 600;
+}
+/* Khi đã login, ẩn login screen và hiện app */
+body.logged-in #login-screen { display: none; }
+/* Khi chưa login, ẩn toàn bộ app */
+body:not(.logged-in) header,
+body:not(.logged-in) .tabs,
+body:not(.logged-in) .panel,
+body:not(.logged-in) .moverlay { display: none !important; }
+/* Change password modal */
+#change-pw-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,.4); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; padding: 24px;
+}
+#change-pw-modal.open { display: flex; }
+.change-pw-card {
+  background: #fff; border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.15);
+  padding: 32px; width: 100%; max-width: 380px;
+}
+
+/* ── FIREBASE HELP BANNER ── */
+#firebase-help {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 8000;
+  background: linear-gradient(135deg, #fff7ed, #fef3c7);
+  border-bottom: 3px solid #f59e0b;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(245,158,11,.3);
+  animation: slideDown .3s ease;
+}
+@keyframes slideDown { from{transform:translateY(-100%)} to{transform:translateY(0)} }
+#firebase-help .help-inner {
+  max-width: 900px; margin: 0 auto;
+  padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start;
+}
+#firebase-help .help-icon { font-size: 28px; flex-shrink: 0; }
+#firebase-help .help-text { flex: 1; }
+#firebase-help .help-title { font-weight: 900; font-size: 15px; color: #92400e; font-family: Nunito,sans-serif; margin-bottom: 6px; }
+#firebase-help .help-steps { font-size: 13px; color: #78350f; font-weight: 600; line-height: 1.7; }
+#firebase-help .help-code {
+  display: inline-block; background: #1e293b; color: #34d399;
+  font-family: DM Mono, monospace; font-size: 12px;
+  padding: 8px 14px; border-radius: 8px; margin: 8px 0;
+  white-space: pre; width: 100%;
+}
+#firebase-help .help-close {
+  background: #f59e0b; color: #fff; border: none;
+  border-radius: 8px; padding: 6px 14px;
+  font-weight: 800; cursor: pointer; flex-shrink: 0; font-size: 13px;
+}
+#firebase-help .help-close:hover { background: #d97706; }
+
+</style>
 </style>
 </head>
 <body>
+
+
+<!-- FIREBASE HELP BANNER -->
+<div id="firebase-help">
+  <div class="help-inner">
+    <div class="help-icon">🔐</div>
+    <div class="help-text">
+      <div class="help-title">Firebase Security Rules đang chặn — Cần mở quyền đọc/ghi!</div>
+      <div class="help-steps">
+        Nguyên nhân: Firebase mặc định <strong>từ chối tất cả</strong> truy cập. Bạn cần vào console Firebase để thay đổi Rules:<br>
+        <strong>1.</strong> Vào <a href="https://console.firebase.google.com/project/quy-tennis/database/quy-tennis-default-rtdb/rules" target="_blank" style="color:#b45309;text-decoration:underline">Firebase Console → Realtime Database → Rules</a><br>
+        <strong>2.</strong> Thay toàn bộ nội dung Rules bằng đoạn sau rồi nhấn <strong>Publish</strong>:
+        <div class="help-code">{
+  "rules": {
+    ".read":  true,
+    ".write": true
+  }
+}</div>
+        <strong>3.</strong> Sau khi Publish, tải lại trang này — sẽ kết nối được ngay.
+      </div>
+    </div>
+    <button class="help-close" onclick="document.getElementById('firebase-help').style.display='none'">✕ Đóng</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🎾</div>
+    <div class="login-title">Tennis Manager</div>
+    <div class="login-sub">Nhóm tennis riêng tư — vui lòng đăng nhập</div>
+
+    <div class="login-input-wrap">
+      <input type="password" id="pw-input" placeholder="Nhập mật khẩu..."
+        onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
+      <button class="login-eye" onclick="togglePwVis()" id="pw-eye" title="Hiện/ẩn">👁</button>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">🔓 Đăng Nhập</button>
+
+    <div class="login-error" id="login-error">❌ Mật khẩu không đúng!</div>
+    <div class="login-attempts" id="login-attempts"></div>
+
+    <div class="login-footer">
+      🔒 Dữ liệu được bảo vệ bởi mật khẩu nhóm
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="change-pw-modal">
+  <div class="change-pw-card">
+    <div style="font-family:Nunito,sans-serif;font-weight:900;font-size:18px;color:var(--accent);margin-bottom:20px">🔑 Đổi Mật Khẩu</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div class="fg"><label>Mật khẩu hiện tại</label>
+        <input type="password" id="cpw-old" placeholder="Nhập mật khẩu cũ...">
+      </div>
+      <div class="fg"><label>Mật khẩu mới</label>
+        <input type="password" id="cpw-new" placeholder="Ít nhất 4 ký tự...">
+      </div>
+      <div class="fg"><label>Xác nhận mật khẩu mới</label>
+        <input type="password" id="cpw-confirm" placeholder="Nhập lại mật khẩu mới...">
+      </div>
+    </div>
+    <div id="cpw-error" style="color:var(--danger);font-size:13px;font-weight:700;margin-bottom:12px;display:none"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-s btn-sm" onclick="closeChangePw()">Hủy</button>
+      <button class="btn btn-p btn-sm" onclick="doChangePw()">💾 Lưu mật khẩu mới</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="logo">🎾 Tennis Manager</div>
@@ -196,6 +402,16 @@ tr:hover td{background:#f8fafc;}
       <button onclick="changeMonth(-1)">‹</button>
       <span id="curMonthLbl"></span>
       <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:8px">
+      <button onclick="openChangePw()" title="Đổi mật khẩu"
+        style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--muted);font-weight:700;transition:.2s"
+        onmouseover="this.style.borderColor='var(--accent);this.style.color='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🔑</button>
+      <button onclick="doLogout()" title="Đăng xuất"
+        style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--muted);font-weight:700;transition:.2s"
+        onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🚪</button>
     </div>
   </div>
 </header>
@@ -603,13 +819,18 @@ function initFirebase() {
       }
       setSyncStatus('ok', '☁ Cập nhật Live');
     }, err => {
-      console.warn('Firebase read error:', err);
-      setSyncStatus('err', '⚠ Offline');
+      console.warn('Firebase read error:', err.code, err.message);
+      if (err.code === 'PERMISSION_DENIED') {
+        setSyncStatus('err', '🔐 Firebase bị chặn — xem hướng dẫn');
+        showFirebaseHelp();
+      } else {
+        setSyncStatus('err', '⚠ Mất kết nối mạng');
+      }
     });
 
   } catch(e) {
     console.warn('Firebase init failed:', e);
-    setSyncStatus('err', '⚠ Offline');
+    setSyncStatus('err', '⚠ Firebase lỗi khởi tạo');
   }
 }
 
@@ -618,6 +839,10 @@ function setSyncStatus(cls, text) {
   el.className = `ok ${cls}`.trim();
   el.className = cls;
   el.textContent = text;
+}
+function showFirebaseHelp() {
+  const banner = document.getElementById('firebase-help');
+  if (banner) banner.style.display = 'block';
 }
 
 // Pending flag: nếu save khi offline, đánh dấu để push lại khi online
@@ -628,7 +853,15 @@ function save() {
     setSyncStatus('saving', '⏳ Đang lưu...');
     db.ref(FB_PATH).set(state)
       .then(() => { setSyncStatus('ok', '☁ Đã lưu'); hasPendingPush = false; })
-      .catch(() => { setSyncStatus('err', '⚠ Lỗi lưu — sẽ thử lại khi có mạng'); hasPendingPush = true; });
+      .catch(err => {
+        if (err.code === 'PERMISSION_DENIED') {
+          setSyncStatus('err', '🔐 Firebase bị chặn — xem hướng dẫn');
+          showFirebaseHelp();
+        } else {
+          setSyncStatus('err', '⚠ Lỗi lưu — sẽ thử lại khi có mạng');
+        }
+        hasPendingPush = true;
+      });
   } else {
     // Chưa kết nối Firebase
     hasPendingPush = true;
@@ -1604,7 +1837,162 @@ function buildSummaryContent() {
     '<div style="text-align:center;margin-top:18px;padding-top:14px;border-top:2px dashed var(--border);color:var(--muted);font-size:11px;font-weight:600">Tạo bởi 🎾 Tennis Manager · ' + new Date().toLocaleDateString('vi-VN') + '</div>';
 }
 
-init();
+// ══════════════════════════════════════════════════
+// AUTH — PASSWORD GATE
+// ══════════════════════════════════════════════════
+const AUTH_KEY      = 'tennis_auth_v1';   // session flag in sessionStorage
+const PW_STORE_KEY  = 'tennis_pw_v1';     // hashed password in localStorage
+const DEFAULT_PW    = 'tennis2026';       // mật khẩu mặc định ban đầu
+const MAX_ATTEMPTS  = 5;                  // khoá sau 5 lần sai
+const LOCK_DURATION = 5 * 60 * 1000;     // 5 phút
+
+// Simple hash (không phải crypto, đủ cho app nhóm nhỏ)
+function hashPw(pw) {
+  let h = 0;
+  for (let i = 0; i < pw.length; i++) {
+    h = Math.imul(31, h) + pw.charCodeAt(i) | 0;
+  }
+  return 'h' + Math.abs(h).toString(36) + pw.length.toString(36);
+}
+
+function getStoredHash() {
+  return localStorage.getItem(PW_STORE_KEY) || hashPw(DEFAULT_PW);
+}
+
+function isLoggedIn() {
+  return sessionStorage.getItem(AUTH_KEY) === 'ok';
+}
+
+// Track login attempts
+function getAttemptData() {
+  try { return JSON.parse(localStorage.getItem('tennis_attempts')||'{"count":0,"lockUntil":0}'); }
+  catch(e) { return { count:0, lockUntil:0 }; }
+}
+function saveAttemptData(data) {
+  localStorage.setItem('tennis_attempts', JSON.stringify(data));
+}
+
+function checkAuthOnLoad() {
+  if (isLoggedIn()) {
+    document.body.classList.add('logged-in');
+  }
+  // Auto-focus input
+  setTimeout(() => document.getElementById('pw-input')?.focus(), 100);
+}
+
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const errEl = document.getElementById('login-error');
+  const attEl = document.getElementById('login-attempts');
+  errEl.style.display = 'none';
+
+  // Check lock
+  const att = getAttemptData();
+  const now = Date.now();
+  if (att.lockUntil > now) {
+    const mins = Math.ceil((att.lockUntil - now) / 60000);
+    errEl.textContent = `🔒 Đã khoá! Thử lại sau ${mins} phút.`;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (!pw) {
+    errEl.textContent = '⚠️ Vui lòng nhập mật khẩu!';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (hashPw(pw) === getStoredHash()) {
+    // ✅ Đúng
+    saveAttemptData({ count:0, lockUntil:0 });
+    sessionStorage.setItem(AUTH_KEY, 'ok');
+    document.body.classList.add('logged-in');
+    document.getElementById('pw-input').value = '';
+    // Init app after login
+    init();
+  } else {
+    // ❌ Sai
+    att.count = (att.count || 0) + 1;
+    const remaining = MAX_ATTEMPTS - att.count;
+    if (att.count >= MAX_ATTEMPTS) {
+      att.lockUntil = Date.now() + LOCK_DURATION;
+      att.count = 0;
+      saveAttemptData(att);
+      errEl.textContent = '🔒 Sai quá nhiều lần! Khoá 5 phút.';
+    } else {
+      saveAttemptData(att);
+      errEl.textContent = `❌ Mật khẩu không đúng!`;
+      attEl.textContent = remaining > 0 ? `Còn ${remaining} lần thử.` : '';
+    }
+    errEl.style.display = 'block';
+    // Shake animation
+    errEl.style.animation = 'none';
+    setTimeout(() => errEl.style.animation = 'shake .4s', 10);
+    document.getElementById('pw-input').select();
+  }
+}
+
+function doLogout() {
+  if (!confirm('Đăng xuất khỏi Tennis Manager?')) return;
+  sessionStorage.removeItem(AUTH_KEY);
+  document.body.classList.remove('logged-in');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-attempts').textContent = '';
+  setTimeout(() => document.getElementById('pw-input')?.focus(), 100);
+}
+
+function togglePwVis() {
+  const inp = document.getElementById('pw-input');
+  const eye = document.getElementById('pw-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+}
+
+// ── CHANGE PASSWORD ──
+function openChangePw() {
+  ['cpw-old','cpw-new','cpw-confirm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cpw-error').style.display = 'none';
+  document.getElementById('change-pw-modal').classList.add('open');
+  document.getElementById('cpw-old').focus();
+}
+function closeChangePw() {
+  document.getElementById('change-pw-modal').classList.remove('open');
+}
+function doChangePw() {
+  const oldPw    = document.getElementById('cpw-old').value;
+  const newPw    = document.getElementById('cpw-new').value;
+  const confirm2 = document.getElementById('cpw-confirm').value;
+  const errEl    = document.getElementById('cpw-error');
+  errEl.style.display = 'none';
+
+  if (hashPw(oldPw) !== getStoredHash()) {
+    errEl.textContent = '❌ Mật khẩu hiện tại không đúng!';
+    errEl.style.display = 'block'; return;
+  }
+  if (newPw.length < 4) {
+    errEl.textContent = '⚠️ Mật khẩu mới phải có ít nhất 4 ký tự!';
+    errEl.style.display = 'block'; return;
+  }
+  if (newPw !== confirm2) {
+    errEl.textContent = '❌ Xác nhận mật khẩu không khớp!';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem(PW_STORE_KEY, hashPw(newPw));
+  closeChangePw();
+  alert('✅ Đổi mật khẩu thành công!\nMật khẩu mới của bạn đã được lưu lại.');
+}
+
+// Click outside change-pw modal to close
+document.getElementById('change-pw-modal').addEventListener('click', function(e){
+  if (e.target === this) closeChangePw();
+});
+
+
+// ─ ENTRY POINT ─
+checkAuthOnLoad();
+// init() sẽ được gọi sau khi đăng nhập thành công
+if (isLoggedIn()) init();
 </script>
 </body>
 </html>
