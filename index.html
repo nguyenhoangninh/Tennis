@@ -181,22 +181,71 @@ tr:hover td{background:#f8fafc;}
 
 /* ═══ PRINT / PDF ═══ */
 @media print {
-  /* Ẩn tất cả, chỉ hiện vùng in */
+  /* Reset body về trạng thái bình thường để nội dung chảy tự nhiên qua nhiều trang */
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ẩn tất cả mọi thứ */
   body > * { display: none !important; }
+
+  /* Chỉ hiện vùng in — dùng static để nội dung chảy qua nhiều trang */
   #print-area {
     display: block !important;
-    position: fixed; inset: 0;
-    background: #fff;
-    padding: 24px 28px;
-    font-family: 'DM Sans', Arial, sans-serif;
-    font-size: 13px;
-    color: #1e293b;
+    position: static !important;   /* QUAN TRỌNG: không dùng fixed/absolute */
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 12px 20px !important;
+    margin: 0 !important;
+    font-family: 'DM Sans', Arial, sans-serif !important;
+    font-size: 12px !important;
+    color: #1e293b !important;
+    box-sizing: border-box !important;
   }
-  #print-area * { box-shadow: none !important; }
-  /* Phân trang đẹp */
-  .print-session-block { page-break-inside: avoid; }
-  .print-page-break { page-break-before: always; }
+
+  /* Tắt shadow và transition */
+  #print-area * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ảnh QR không vỡ layout */
+  #print-area img {
+    max-width: 100% !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Ngăn buổi tập bị cắt giữa trang */
+  .print-session-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Bảng tổng hợp không bị cắt */
+  #print-area table {
+    page-break-inside: auto !important;
+  }
+  #print-area tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Tiêu đề các section ở đầu trang mới nếu cần */
+  .print-section-title {
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
 }
+
 /* Vùng in ẩn khi không print */
 #print-area { display: none; }
 
@@ -1818,7 +1867,7 @@ function buildPdfHtml() {
         <td style="padding:6px 10px;text-align:right;font-family:monospace">${ppp ? fmt(Math.round(ppp)) : '—'}</td>
         <td style="padding:6px 10px;text-align:right;font-family:monospace;font-weight:800;color:${GREEN}">${fmt(Math.round(cpp+tpp+ppp))}</td>
       </tr>`).join('');
-    return `<div class="print-session-block" style="margin-bottom:12px;border:1px solid ${BORDER};border-radius:8px;overflow:hidden">
+    return `<div class="print-session-block" style="margin-bottom:12px;border:1px solid ${BORDER};border-radius:8px;overflow:visible">
       <div style="background:${LGRAY};padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${BORDER}">
         <div>
           <strong style="color:${GREEN};font-size:13px">${fmtDate(s.date)} ${s.day}</strong>
@@ -1883,7 +1932,7 @@ function buildPdfHtml() {
 
     <!-- BẢNG TỔNG HỢP -->
     <h3 style="font-size:14px;font-weight:800;color:${DARK};margin:0 0 10px;padding:8px 12px;background:${LGRAY};border-radius:6px">💰 Số tiền từng người đóng</h3>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;border:1px solid ${BORDER};border-radius:8px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:4px;border:1px solid ${BORDER};border-radius:8px;overflow:visible">
       <thead><tr style="background:${LGRAY}">
         <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">THÀNH VIÊN</th>
         <th style="padding:10px 12px;text-align:left;color:${GRAY};font-size:11px;font-weight:700">CHI TIẾT</th>
@@ -1922,19 +1971,50 @@ function buildSummaryContent() {
 }
 
 function doPrint() {
-  // Đảm bảo print-area có nội dung mới nhất
-  document.getElementById('print-area').innerHTML = buildPdfHtml();
-  // Đợi ảnh QR load xong rồi mới in
+  // 1. Build nội dung vào print-area
+  const html = buildPdfHtml();
+  document.getElementById('print-area').innerHTML = html;
+
+  // 2. Đóng modal để nó không can thiệp vào layout khi print
+  document.getElementById('summary-modal').style.display = 'none';
+
+  // 3. Đợi QR images load xong rồi mới gọi print
   const imgs = document.getElementById('print-area').querySelectorAll('img');
-  if (imgs.length === 0) { window.print(); return; }
-  let loaded = 0;
-  const tryPrint = () => { loaded++; if (loaded >= imgs.length) window.print(); };
+  let printed = false;
+
+  function triggerPrint() {
+    if (printed) return;
+    printed = true;
+    // requestAnimationFrame đảm bảo browser render xong DOM trước khi in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.print();
+        // Mở lại modal sau khi hộp thoại in đóng
+        setTimeout(() => {
+          document.getElementById('summary-modal').style.display = 'flex';
+        }, 500);
+      });
+    });
+  }
+
+  if (imgs.length === 0) {
+    triggerPrint();
+    return;
+  }
+
+  let loadCount = 0;
   imgs.forEach(img => {
-    if (img.complete) tryPrint();
-    else { img.onload = tryPrint; img.onerror = tryPrint; }
+    if (img.complete && img.naturalWidth > 0) {
+      loadCount++;
+      if (loadCount >= imgs.length) triggerPrint();
+    } else {
+      img.onload  = () => { loadCount++; if (loadCount >= imgs.length) triggerPrint(); };
+      img.onerror = () => { loadCount++; if (loadCount >= imgs.length) triggerPrint(); };
+    }
   });
-  // Fallback: in sau 2 giây dù QR chưa load
-  setTimeout(() => window.print(), 2000);
+
+  // Safety fallback: in sau 3 giây dù QR chưa load
+  setTimeout(triggerPrint, 3000);
 }
 
 // ══════════════════════════════════════════════════
