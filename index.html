@@ -544,14 +544,24 @@ let chartInst  = null;
 let db         = null;
 
 // Hàm chống lỗi cấu trúc Array biến thành Object trên Firebase
+// FIX: chỉ convert khi thực sự là plain Object (không phải Array)
+function toArr(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.filter(Boolean);
+  return Object.values(val).filter(Boolean); // Firebase đổi Array → Object
+}
 function sanitizeFirebaseState(cloudData) {
   if (!cloudData) return cloudData;
-  if (cloudData.masterData) cloudData.masterData = Object.values(cloudData.masterData).filter(Boolean);
-  if (cloudData.members)    cloudData.members = Object.values(cloudData.members).filter(Boolean);
+  cloudData.masterData = toArr(cloudData.masterData);
+  cloudData.members    = toArr(cloudData.members);
   if (cloudData.months) {
     Object.values(cloudData.months).forEach(m => {
-      if (m.sessions) m.sessions = Object.values(m.sessions).filter(Boolean);
-      if (m.ballPlayers) m.ballPlayers = Object.values(m.ballPlayers).filter(Boolean);
+      if (m) {
+        m.sessions    = toArr(m.sessions);
+        m.ballPlayers = toArr(m.ballPlayers);
+        if (!m.payments)  m.payments  = {};
+        if (!m.bankInfo)  m.bankInfo  = {};
+      }
     });
   }
   if (!cloudData.bankInfo)  cloudData.bankInfo  = {};
@@ -570,8 +580,24 @@ function initFirebase() {
 
     db.ref(FB_PATH).on('value', snapshot => {
       const cloud = snapshot.val();
+      if (hasPendingPush) {
+        // Có thay đổi cục bộ chưa được lưu → push lên, không kéo về
+        db.ref(FB_PATH).set(state)
+          .then(() => { setSyncStatus('ok', '☁ Đã lưu'); hasPendingPush = false; })
+          .catch(() => setSyncStatus('err', '⚠ Lỗi lưu'));
+        return;
+      }
       if (cloud && cloud.members) {
-        state = sanitizeFirebaseState(cloud);
+        const sanitized = sanitizeFirebaseState(cloud);
+        // Chỉ cập nhật nếu data từ cloud thực sự mới hơn hoặc có nội dung
+        if (sanitized.masterData && sanitized.masterData.length > 0) {
+          state = sanitized;
+        } else if (cloud && !sanitized.masterData?.length && state.masterData?.length) {
+          // Cloud trả về masterData rỗng nhưng local có → giữ local, push lên
+          db.ref(FB_PATH).set(state);
+        } else {
+          state = sanitized;
+        }
         ensureMonth(curMonth);
         render();
       }
@@ -594,13 +620,19 @@ function setSyncStatus(cls, text) {
   el.textContent = text;
 }
 
+// Pending flag: nếu save khi offline, đánh dấu để push lại khi online
+let hasPendingPush = false;
 function save() {
   try { localStorage.setItem(DB_KEY, JSON.stringify(state)); } catch(e){}
   if (db) {
     setSyncStatus('saving', '⏳ Đang lưu...');
     db.ref(FB_PATH).set(state)
-      .then(() => setSyncStatus('ok', '☁ Đã lưu'))
-      .catch(() => setSyncStatus('err', '⚠ Lỗi lưu'));
+      .then(() => { setSyncStatus('ok', '☁ Đã lưu'); hasPendingPush = false; })
+      .catch(() => { setSyncStatus('err', '⚠ Lỗi lưu — sẽ thử lại khi có mạng'); hasPendingPush = true; });
+  } else {
+    // Chưa kết nối Firebase
+    hasPendingPush = true;
+    setSyncStatus('err', '⚠ Chưa có mạng — đã lưu cục bộ');
   }
 }
 
@@ -620,7 +652,8 @@ function forceSync() {
 function init() {
   const saved = localStorage.getItem(DB_KEY);
   if (saved) try { state = JSON.parse(saved); } catch(e){}
-  if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
+  // Chỉ reset về DEFAULT nếu không có gói hợp lệ nào
+  if (!state.masterData || !state.masterData.some(x => x && x.name)) state.masterData = DEFAULT_MASTER;
   if (!state.bankInfo)  state.bankInfo  = {};
   if (!state.courtInfo) state.courtInfo = {};
   loadReceipts();
@@ -737,19 +770,28 @@ function saveMD() {
   const coach  = pn(document.getElementById('md-coach').value);
   const tip    = pn(document.getElementById('md-tip').value);
   if (!name) { alert('Nhập tên gói!'); return; }
+  if (!court) { alert('Nhập giá sân!'); return; }
   
   if (!state.masterData) state.masterData = [];
   
   if (editId) {
-    const md = state.masterData.find(x => x && x.id === parseInt(editId));
-    if (md) Object.assign(md, { name, court, coach, tip });
+    // Dùng Number() thay parseInt() để đảm bảo so sánh đúng kiểu
+    const targetId = Number(editId);
+    const md = state.masterData.find(x => x && Number(x.id) === targetId);
+    if (md) {
+      Object.assign(md, { name, court, coach, tip });
+    } else {
+      // Không tìm thấy gói để edit → thêm mới thay vì im lặng
+      state.masterData.push({ id: Date.now(), name, court, coach, tip });
+    }
   } else {
     state.masterData.push({ id: Date.now(), name, court, coach, tip });
   }
   save(); cancelMD(); renderSettings(); renderTemplateDropdown();
 }
 function editMD(id) {
-  const md = (state.masterData||[]).find(x => x && x.id === id);
+  // So sánh Number để tránh lỗi type string vs number
+  const md = (state.masterData||[]).find(x => x && Number(x.id) === Number(id));
   if (!md) return;
   document.getElementById('md-edit-id').value = id;
   document.getElementById('md-name').value    = md.name;
@@ -766,7 +808,7 @@ function cancelMD() {
 }
 function deleteMD(id) {
   if (!confirm('Xóa gói giá này?')) return;
-  state.masterData = (state.masterData||[]).filter(md => md && md.id !== id);
+  state.masterData = (state.masterData||[]).filter(md => md && Number(md.id) !== Number(id));
   save(); renderSettings(); renderTemplateDropdown();
 }
 function renderTemplateDropdown() {
@@ -1423,7 +1465,8 @@ function importData(event) {
       const imported = JSON.parse(e.target.result);
       if (imported.members && imported.months) {
         state = sanitizeFirebaseState(imported);
-        if (!state.masterData || !state.masterData.length) state.masterData = DEFAULT_MASTER;
+        // Chỉ reset về DEFAULT nếu không có gói hợp lệ nào
+  if (!state.masterData || !state.masterData.some(x => x && x.name)) state.masterData = DEFAULT_MASTER;
         save(); render(); alert('Nhập dữ liệu thành công!');
       } else alert('File không hợp lệ!');
     } catch { alert('Lỗi đọc file!'); }
